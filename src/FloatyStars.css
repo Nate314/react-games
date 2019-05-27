@@ -1,0 +1,19 @@
+.sky {
+    position: absolute;
+    background-color: skyblue;
+    left: -10px;
+    top: 0;
+    height: 100vh;
+    width: calc(100vw + 10px);
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.snow {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    display: inline-block;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}

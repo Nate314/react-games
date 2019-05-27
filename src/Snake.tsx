@@ -130,7 +130,7 @@ class GameState {
     gameTickInterval: number = 110;
 }
 
-export default class Game extends React.Component {
+export default class SnakeGame extends React.Component {
 
     gameTickDelta: number = 0;
     snakeLengthDelta: number = 3;

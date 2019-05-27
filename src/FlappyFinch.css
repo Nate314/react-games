@@ -1,0 +1,56 @@
+.sky {
+    position: absolute;
+    background-color: skyblue;
+    left: -10px;
+    top: 0;
+    height: 100vh;
+    width: calc(100vw + 10px);
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.bird {
+    position: absolute;
+    background-color: goldenrod;
+    border-radius: 50%;
+    display: inline-block;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.nomnom {
+    position: absolute;
+    background-color: purple;
+    border-radius: 50%;
+    display: inline-block;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.ground {
+    position: absolute;
+    background-color: saddlebrown;
+    width: 100%;
+}
+
+.pipe {
+    position: absolute;
+    background-color: green;
+    height: 100%;
+    display: inline-block;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.paused {
+    position: absolute;
+    color: red;
+    background-color: rgba(135, 206, 235, 0.85);
+    font-size: 100px;
+    text-align: center;
+    top: calc(50% - 100px);
+    width: 100%;
+    border: 5px;
+    border-color: black;
+    border-style: solid;
+}
