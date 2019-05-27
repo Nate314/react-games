@@ -6,10 +6,12 @@ import FloatyStars from './FloatyStars';
 import FlappyFinchGame from './FlappyFinch';
 import * as serviceWorker from './serviceWorker';
 
+const production = true;
+
 class App extends React.Component {
     render() {
         return (
-            <Router basename={'/react-games/'}>
+            <Router basename={production ? '/react-games/' : '/'}>
                 <Route path="/" exact component = {SnakeGame} />
                 <Route path="/snake" exact component = {SnakeGame} />
                 <Route path="/floatystars" exact component = {FloatyStars} />

@@ -2,9 +2,9 @@ import React from 'react';
 import './FlappyFinch.css';
 import Music from './Music';
 
-const frameInterval = 8;
+const frameInterval = 10;
 const pipeXGap = 300;
-const pipeYGap = 250;
+const pipeYGap = 250;  
 const pipeWidth = 100;
 const gravityConstant = 0.15;
 const flapVelocity = -6.25;
@@ -118,8 +118,10 @@ class Pipe extends React.Component {
         return (
             <div>
                 {this.nomNomEaten ? '' : <NomNom x={this.nomNomProps.x} y={this.nomNomProps.y}/>}
-                <div className="pipe" style={{top:`${topPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></div>
-                <div className="pipe" style={{top:`${bottomPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></div>
+                <div className="pipe" style={{ transform:'scale(-1, -1)',
+                    top:`${topPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></div>
+                <div className="pipe" style={{ transform:'scale(-1, 1)',
+                    top:`${bottomPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></div>
             </div>
         )
     };
@@ -161,8 +163,11 @@ class FlappyFinchGameState {
     collision: boolean = false;
     currentPipeToCheck: number = 1;
     score: number = 0;
+    highscore: number = 0;
     shouldDing: boolean = false;
     shouldFlap: boolean = false;
+    groundX: number = 0;
+    skyX: number = 0;
 }
 
 export default class FlappyFinchGame extends React.Component {
@@ -185,6 +190,11 @@ export default class FlappyFinchGame extends React.Component {
 
     restart() {
         this.state = new FlappyFinchGameState();
+        const lshs = localStorage.getItem('nate314.flappyfinch.highScore');
+        if (!lshs) {
+            localStorage.setItem('nate314.flappyfinch.highScore', JSON.stringify(0));
+        }
+        this.state.highscore = lshs ? Number(lshs) : 0;
         let x = 3 * pipeXGap;
         let index = 1;
         Array(10).fill(null).forEach(() => {
@@ -219,7 +229,17 @@ export default class FlappyFinchGame extends React.Component {
         document.addEventListener("keydown", this.keyDown);
     }
 
+    incrementScore() {
+        this.state.score++;
+        const lshs = localStorage.getItem('nate314.flappyfinch.highScore');
+        if (Number(lshs) < this.state.score) {
+            this.state.highscore = this.state.score;
+            localStorage.setItem('nate314.flappyfinch.highScore', JSON.stringify(this.state.highscore));
+        }
+    }
+
     animate() {
+        const width = window.innerWidth;
         const height = window.innerHeight;
         this.setState((state: FlappyFinchGameState) => {
             state.birdPosition.y += state.birdVelocity;
@@ -228,7 +248,7 @@ export default class FlappyFinchGame extends React.Component {
                 if (state.currentPipeToCheck === pipe.index) {
                     if (pipe.x + pipeWidth < this.state.birdPosition.x) {
                         state.currentPipeToCheck++;
-                        state.score++;
+                        this.incrementScore();
                     }
                     const object = {
                         x: pipe.x, y: pipe.y,
@@ -244,45 +264,70 @@ export default class FlappyFinchGame extends React.Component {
                 }
                 pipe.x -= 1;
             });
+            [state.groundX, state.skyX] = [state.groundX -1, state.skyX - 0.5];
+            if (state.groundX < -width * 0.625) {
+                state.groundX = 0;
+            }
+            if (state.skyX < -width * 0.5) {
+                state.skyX = 0;
+            }
             if (state.birdPosition.y > height - (birdSize + 50)) {
                 state.gameover = true;
             } else if (state.birdPosition.y < 0) {
                 state.birdPosition.y = 0;
+            }
+            const hs = localStorage.getItem('nate314.flappyfinch.highScore');
+            let newHighScore = true;
+            if (hs && Number(hs) > state.score) newHighScore = false;
+            if (newHighScore) {
+                localStorage.setItem('nate314.flappyfinch.highScore', JSON.stringify(state.score));
             }
             return state;
         });
     }
 
     nomNomEaten(): void {
-        console.log('nomnom');
-        this.state.score++; 
+        this.incrementScore();
         this.state.shouldDing = true;
     }
  
     render() {
         const [ding, flap] = [this.state.shouldDing, this.state.shouldFlap];
         [this.state.shouldDing, this.state.shouldFlap] = [false, false];
+        const width = window.innerWidth;
         const height = window.innerHeight;
+        const pipes = this.state.pipePositions.map(pipe => 
+            <Pipe x={pipe.x} y={pipe.y} index={pipe.index}
+                birdPosition={this.state.birdPosition} onNomNom={() => this.nomNomEaten()}/>
+        );
+        const gamestatus = (this.state.paused || this.state.gameover || this.state.collision) ?
+            <div className="paused">{this.state.gameover ? 'GAME OVER' : 'PAUSED'}</div> : '';
+        const ground = Array(5).fill(null).map((v, i) =>
+            <div className="ground" 
+                style={{top:`${height - 50}px`, left:`${this.state.groundX + (i * width * 0.625)}px`, height:'50px',
+                color:'white', textAlign:'left', fontSize:'20px'}}></div>
+        );
+        const sky = Array(5).fill(null).map((v, i) =>
+            <div className="sky" style={{left: `${10 + this.state.skyX + (i * width * 0.5)}px`}}></div>
+        );
+        // const scoreboard =  ;
         return (
-            <div className="sky">
+            <div className="game">
+                {sky}
                 <Music url={mp3DingUrl} play={ding}/>
                 <Music url={mp3FlapUrl} play={flap}/>
                 <Bird x={this.state.birdPosition.x} y={this.state.birdPosition.y}/>
-                {
-                    this.state.pipePositions.map(pipe => 
-                        <Pipe x={pipe.x} y={pipe.y} index={pipe.index}
-                            birdPosition={this.state.birdPosition} onNomNom={() => this.nomNomEaten()}/>
-                    )
-                }
-                {
-                    (this.state.paused || this.state.gameover || this.state.collision) ?
-                        <div className="paused">{this.state.gameover ? 'GAME OVER' : 'PAUSED'}</div>
-                        : ''
-                }
-                <div className="ground"
-                    style={{top:`${height - 50}px`, left:'10px', height:'50px',
-                    color:'white', textAlign:'left', fontSize:'20px'}}>
-                    &nbsp;&nbsp;&nbsp;Score:&nbsp;{this.state.score}</div>
+                {pipes}
+                {gamestatus}
+                {ground}
+                {/* {scoreboard} */}
+                <div className="scoreboard">
+                    &nbsp;&nbsp;&nbsp;Score:&nbsp;{this.state.score}
+                    <br />
+                    &nbsp;&nbsp;&nbsp;High Score:&nbsp;{this.state.highscore}
+                    <br />
+                    &nbsp;&nbsp;&nbsp;(r) Reset | (Escape) Pause | (Space) Flap
+                </div>
             </div>
         );
     }

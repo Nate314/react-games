@@ -1,6 +1,5 @@
-.sky {
+.game {
     position: absolute;
-    background-color: skyblue;
     left: -10px;
     top: 0;
     height: 100vh;
@@ -9,13 +8,26 @@
     overflow-y: hidden;
 }
 
+.sky {
+    position: absolute;
+    /* background-repeat: repeat-x; */
+    /* background-size: calc(100vh * 0.625) 100vh; */
+    background-size: 50vw 100vh;
+    background-image: url('./assets/sky58.png');
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 50vw;
+}
+
 .bird {
     position: absolute;
-    background-color: goldenrod;
-    border-radius: 50%;
+    background-color: black;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url('./assets/bird.png');
     display: inline-block;
-    overflow-x: hidden;
-    overflow-y: hidden;
 }
 
 .nomnom {
@@ -29,14 +41,19 @@
 
 .ground {
     position: absolute;
-    background-color: saddlebrown;
-    width: 100%;
+    /* background-repeat: repeat-x; */
+    background-size: 62.5vw 100px;
+    background-image: url('./assets/ground.png');
+    width: 62.5vw;
 }
 
 .pipe {
     position: absolute;
-    background-color: green;
     height: 100%;
+    background-position-x: 0;
+    background-size: 100px 500px;
+    background-repeat: no-repeat;
+    background-image: url('./assets/pipe.png');
     display: inline-block;
     overflow-x: hidden;
     overflow-y: hidden;
@@ -45,7 +62,7 @@
 .paused {
     position: absolute;
     color: red;
-    background-color: rgba(135, 206, 235, 0.85);
+    background-color: rgba(113, 197, 208, 0.85);
     font-size: 100px;
     text-align: center;
     top: calc(50% - 100px);
@@ -53,4 +70,12 @@
     border: 5px;
     border-color: black;
     border-style: solid;
+}
+
+.scoreboard {
+    position: absolute;
+    z-index: 100;
+    font-size: 20px;
+    color: white;
+    text-align: left;
 }
