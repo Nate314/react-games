@@ -9,7 +9,7 @@ import * as serviceWorker from './serviceWorker';
 class App extends React.Component {
     render() {
         return (
-            <Router>
+            <Router basename={'/react-games/'}>
                 <Route path="/" exact component = {SnakeGame} />
                 <Route path="/snake" exact component = {SnakeGame} />
                 <Route path="/floatystars" exact component = {FloatyStars} />
