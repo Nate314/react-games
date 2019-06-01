@@ -1,6 +1,11 @@
 import React from 'react';
 import './FlappyFinch.css';
 import Music from './Music';
+import { Utility } from './Utility';
+import sky58Image from './assets/sky58.png';
+import birdImage from './assets/bird.png';
+import groundImage from './assets/ground.png';
+import pipeImage from './assets/pipe.png';
 
 const frameInterval = 10;
 const pipeXGap = 300;
@@ -118,10 +123,10 @@ class Pipe extends React.Component {
         return (
             <div>
                 {this.nomNomEaten ? '' : <NomNom x={this.nomNomProps.x} y={this.nomNomProps.y}/>}
-                <div className="pipe" style={{ transform:'scale(-1, -1)',
-                    top:`${topPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></div>
-                <div className="pipe" style={{ transform:'scale(-1, 1)',
-                    top:`${bottomPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></div>
+                <img className="pipe" src={pipeImage} style={{ transform:'scale(-1, -1)',
+                    top:`${topPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></img>
+                <img className="pipe" src={pipeImage} style={{ transform:'scale(-1, 1)',
+                    top:`${bottomPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></img>
             </div>
         )
     };
@@ -147,9 +152,9 @@ class Bird extends React.Component {
 
     render() {
         return (
-            <div className="bird"
+            <img className="bird" src={birdImage}
                 style={{left:`${this.props.x}px`, top:`${this.props.y}px`,
-                        width:`${birdSize}px`, height:`${birdSize}px`}}></div>
+                        width:`${birdSize}px`, height:`${birdSize}px`}}></img>
         )
     };
 }
@@ -197,7 +202,7 @@ export default class FlappyFinchGame extends React.Component {
         this.state.highscore = lshs ? Number(lshs) : 0;
         let x = 3 * pipeXGap;
         let index = 1;
-        Array(10).fill(null).forEach(() => {
+        Utility.array(10).forEach(() => {
             this.state.pipePositions.push(new PipeProps(x, this.randomPipePosition(), index));
             x += pipeXGap;
             index++;
@@ -302,32 +307,31 @@ export default class FlappyFinchGame extends React.Component {
         );
         const gamestatus = (this.state.paused || this.state.gameover || this.state.collision) ?
             <div className="paused">{this.state.gameover ? 'GAME OVER' : 'PAUSED'}</div> : '';
-        const ground = Array(5).fill(null).map((v, i) =>
-            <div className="ground" 
+        const ground = Utility.array(5).map((v, i) =>
+            <img className="ground" src={groundImage}
                 style={{top:`${height - 50}px`, left:`${this.state.groundX + (i * width * 0.625)}px`, height:'50px',
-                color:'white', textAlign:'left', fontSize:'20px'}}></div>
+                color:'white', textAlign:'left', fontSize:'20px'}}></img>
         );
-        const sky = Array(5).fill(null).map((v, i) =>
-            <div className="sky" style={{left: `${10 + this.state.skyX + (i * width * 0.5)}px`}}></div>
+        const background = Utility.array(5).map((v, i) =>
+            <img className="background" src={sky58Image} style={{left: `${10 + this.state.skyX + (i * width * 0.5)}px`}}></img>
         );
-        // const scoreboard =  ;
+        const scoreboard = <div className="scoreboard">
+                &nbsp;&nbsp;&nbsp;Score:&nbsp;{this.state.score}
+                <br />
+                &nbsp;&nbsp;&nbsp;High Score:&nbsp;{this.state.highscore}
+                <br />
+                &nbsp;&nbsp;&nbsp;(r) Reset | (Escape) Pause | (Space) Flap
+            </div>;
         return (
             <div className="game">
-                {sky}
+                {background}
                 <Music url={mp3DingUrl} play={ding}/>
                 <Music url={mp3FlapUrl} play={flap}/>
                 <Bird x={this.state.birdPosition.x} y={this.state.birdPosition.y}/>
                 {pipes}
                 {gamestatus}
                 {ground}
-                {/* {scoreboard} */}
-                <div className="scoreboard">
-                    &nbsp;&nbsp;&nbsp;Score:&nbsp;{this.state.score}
-                    <br />
-                    &nbsp;&nbsp;&nbsp;High Score:&nbsp;{this.state.highscore}
-                    <br />
-                    &nbsp;&nbsp;&nbsp;(r) Reset | (Escape) Pause | (Space) Flap
-                </div>
+                {scoreboard}
             </div>
         );
     }

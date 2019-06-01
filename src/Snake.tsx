@@ -1,5 +1,6 @@
 import React from 'react';
 import './Snake.css';
+import { Utility } from './Utility';
 
 const boardWidth = 30;
 const boardHeight = 20;
@@ -29,8 +30,8 @@ class Board extends React.Component {
 
     render() {
         // building array to figure out the color for each square
-        const squareColors: string[][] = Array(boardHeight).fill(null).map((v, rowindex) =>
-            Array(boardWidth).fill(null).map((v, columnindex) => {
+        const squareColors: string[][] = Utility.array(boardHeight).map((v, rowindex) =>
+            Utility.array(boardWidth).map((v, columnindex) => {
                 let color;
                 this.props.snakeBody.forEach(bodyPart => {
                     if (arePositionsEqual(bodyPart, [rowindex, columnindex]))
@@ -55,10 +56,10 @@ class Board extends React.Component {
         return (
             <div>
                 {
-                    Array(boardHeight).fill(null).map((row, rowindex) =>
+                    Utility.array(boardHeight).map((row, rowindex) =>
                         <div className="board-row" key={`row-${rowindex}`}>
                             {
-                                Array(boardWidth).fill(null).map((row, columnindex) =>
+                                Utility.array(boardWidth).map((row, columnindex) =>
                                     <div className="square" key={`square-${rowindex}-${columnindex}`}
                                         style={
                                             {backgroundColor: squareColors[rowindex][columnindex],
@@ -163,7 +164,7 @@ export default class SnakeGame extends React.Component {
                     state.gameover = true;
                 } else {
                     state.snakeHeadPosition = [y, x];
-                    state.snakeBody = Array(state.snakeBody.length).fill([-1, -1]).concat(state.snakeBody);
+                    state.snakeBody = Utility.array(state.snakeBody.length, [-1, -1]).concat(state.snakeBody);
                     state.snakeBody = state.snakeBody.slice(state.snakeBody.length - state.snakeLength);
                     state.snakeBody.forEach((bodyPart, i) => {
                         if (arePositionsEqual(bodyPart, state.snakeHeadPosition)) state.gameover = true;

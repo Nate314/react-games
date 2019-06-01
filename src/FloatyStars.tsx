@@ -1,5 +1,6 @@
 import React from 'react';
 import './FloatyStars.css';
+import { Utility } from './Utility';
 
 const numberOfStars = 100;
 const starSize = 10;
@@ -22,7 +23,7 @@ export default class FloatyStars extends React.Component {
         this.state = new FloatyStarsState();
         const width = window.innerWidth;
         const height = window.innerHeight;
-        Array(numberOfStars).fill(null).forEach(() => {
+        Utility.array(numberOfStars).forEach(() => {
             this.state.starLocations.push([Math.random() * width, Math.random() * height]);
             this.state.starVelocities.push([Math.random() * maxSpeed, Math.random() * maxSpeed]);
         });
