@@ -19,6 +19,7 @@ export default class FloatyStars extends React.Component {
 
     constructor(props: any) {
         super(props);
+        Utility.setTitle('FloatyStars');
         this.props = props;
         this.state = new FloatyStarsState();
         const width = window.innerWidth;

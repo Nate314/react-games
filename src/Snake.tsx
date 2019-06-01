@@ -142,6 +142,7 @@ export default class SnakeGame extends React.Component {
 
     constructor(props: any) {
         super(props);
+        Utility.setTitle('Snake');
         const tempState = new GameState();
         this.state = tempState;
         this.currentDirection = this.state.snakeDirection;

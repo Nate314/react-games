@@ -2,10 +2,16 @@ import React from 'react';
 import './FlappyFinch.css';
 import Music from './Music';
 import { Utility } from './Utility';
-import sky58Image from './assets/sky58.png';
-import birdImage from './assets/bird.png';
-import groundImage from './assets/ground.png';
-import pipeImage from './assets/pipe.png';
+// const getImage = (url: string) => true ? `.${require(url)}` : `${require(url)}`;
+const prefix = '.';
+const sky58Image = `${prefix}${require('./assets/sky58.png')}`;
+const birdImage = `${prefix}${require('./assets/bird.png')}`;
+const groundImage = `${prefix}${require('./assets/ground.png')}`;
+const pipeImage = `${prefix}${require('./assets/pipe.png')}`;
+// const sky58Image = getImage('./assets/sky58.png');
+// const birdImage = getImage('./assets/bird.png');
+// const groundImage = getImage('./assets/ground.png');
+// const pipeImage = getImage('./assets/pipe.png');
 
 const frameInterval = 10;
 const pipeXGap = 300;
@@ -105,7 +111,7 @@ class Pipe extends React.Component {
         const topPipeTop = (this.props.y - height) - halfGap;
         const bottomPipeTop = this.props.y + halfGap;
         this.nomNomProps.x = this.props.x + (pipeWidth / 2);
-        if (this.nomNomProps.y == 0) {
+        if (this.nomNomProps.y === 0) {
             const topPipeBottom = topPipeTop + height;
             this.nomNomProps.y = topPipeBottom + (Math.random() * (bottomPipeTop - topPipeBottom));
         }
@@ -170,7 +176,7 @@ class FlappyFinchGameState {
     score: number = 0;
     highscore: number = 0;
     shouldDing: boolean = false;
-    shouldFlap: boolean = false;
+    flapWhenOdd: number = 0;
     groundX: number = 0;
     skyX: number = 0;
 }
@@ -183,6 +189,7 @@ export default class FlappyFinchGame extends React.Component {
 
     constructor(props: any) {
         super(props);
+        Utility.setTitle('FlappyFinch');
         this.props = props;
         this.state = new FlappyFinchGameState();
         this.restart();
@@ -210,13 +217,13 @@ export default class FlappyFinchGame extends React.Component {
         this.setState(this.state);
     }
 
-    keyDown = (e: any) => {
+    keyDown = (e: any | ' ' | 'Escape' | 'r') => {
         this.setState((state: FlappyFinchGameState) => {
-            const k = e.key;
+            const k = typeof e === typeof ' ' ? e : e.key;
             switch (k) {
                 case ' ':
                     state.birdVelocity = flapVelocity;
-                    state.shouldFlap = true;
+                    state.flapWhenOdd++;
                     break;
                 case 'Escape':
                     state.paused = !state.paused;
@@ -297,36 +304,62 @@ export default class FlappyFinchGame extends React.Component {
     }
  
     render() {
-        const [ding, flap] = [this.state.shouldDing, this.state.shouldFlap];
-        [this.state.shouldDing, this.state.shouldFlap] = [false, false];
+        const ding = this.state.shouldDing;
+        const flap = this.state.flapWhenOdd;
+        this.state.shouldDing = false
+        this.state.flapWhenOdd += Utility.isOdd(this.state.flapWhenOdd) ? 1 : 0;
         const width = window.innerWidth;
         const height = window.innerHeight;
-        const pipes = this.state.pipePositions.map(pipe => 
-            <Pipe x={pipe.x} y={pipe.y} index={pipe.index}
+        const pipes = this.state.pipePositions.map((pipe, i) => 
+            <Pipe key={`pipe${i}`}
+                x={pipe.x} y={pipe.y} index={pipe.index}
                 birdPosition={this.state.birdPosition} onNomNom={() => this.nomNomEaten()}/>
         );
         const gamestatus = (this.state.paused || this.state.gameover || this.state.collision) ?
             <div className="paused">{this.state.gameover ? 'GAME OVER' : 'PAUSED'}</div> : '';
         const ground = Utility.array(5).map((v, i) =>
-            <img className="ground" src={groundImage}
+            <img key={`background${i}`}
+                className="ground" src={groundImage}
                 style={{top:`${height - 50}px`, left:`${this.state.groundX + (i * width * 0.625)}px`, height:'50px',
                 color:'white', textAlign:'left', fontSize:'20px'}}></img>
         );
         const background = Utility.array(5).map((v, i) =>
-            <img className="background" src={sky58Image} style={{left: `${10 + this.state.skyX + (i * width * 0.5)}px`}}></img>
+            <img key={`background${i}`}
+                className="background" src={sky58Image}
+                style={{left: `${10 + this.state.skyX + (i * width * 0.5)}px`}}></img>
         );
         const scoreboard = <div className="scoreboard">
                 &nbsp;&nbsp;&nbsp;Score:&nbsp;{this.state.score}
                 <br />
                 &nbsp;&nbsp;&nbsp;High Score:&nbsp;{this.state.highscore}
                 <br />
-                &nbsp;&nbsp;&nbsp;(r) Reset | (Escape) Pause | (Space) Flap
+                &nbsp;&nbsp;&nbsp;
+                <span onClick={() => this.keyDown('r')}>
+                    (r) Reset
+                </span>
+                &nbsp;|&nbsp;
+                <span onClick={() => this.keyDown('Escape')}>
+                    (Escape) Pause
+                </span>
+                &nbsp;|&nbsp;
+                <span>
+                    (Space) Flap
+                </span>
             </div>;
+        const shouldPlayFlapSound = (i: number) => Utility.isOdd(flap)
+            ? (this.state.paused || this.state.gameover
+                ? false : Math.floor(flap / 2) % 4 === i)
+            : false;
         return (
-            <div className="game">
+            <div className="game" onClick={() => this.keyDown(' ')}>
                 {background}
                 <Music url={mp3DingUrl} play={ding}/>
-                <Music url={mp3FlapUrl} play={flap}/>
+                {/* Allows flap sound to be played multiple times */}
+                <Music url={mp3FlapUrl} play={shouldPlayFlapSound(0)}/>
+                <Music url={mp3FlapUrl} play={shouldPlayFlapSound(1)}/>
+                <Music url={mp3FlapUrl} play={shouldPlayFlapSound(2)}/>
+                <Music url={mp3FlapUrl} play={shouldPlayFlapSound(3)}/>
+                {/* Allows flap sound to be played multiple times */}
                 <Bird x={this.state.birdPosition.x} y={this.state.birdPosition.y}/>
                 {pipes}
                 {gamestatus}
