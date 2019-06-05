@@ -4,7 +4,7 @@
     display: table;
 }
 
-.square {
+.snakesquare {
     border: 1px solid #222;
     float: left;
     margin-right: -1px;

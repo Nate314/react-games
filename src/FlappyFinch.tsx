@@ -8,10 +8,6 @@ const sky58Image = `${prefix}${require('./assets/sky58.png')}`;
 const birdImage = `${prefix}${require('./assets/bird.png')}`;
 const groundImage = `${prefix}${require('./assets/ground.png')}`;
 const pipeImage = `${prefix}${require('./assets/pipe.png')}`;
-// const sky58Image = getImage('./assets/sky58.png');
-// const birdImage = getImage('./assets/bird.png');
-// const groundImage = getImage('./assets/ground.png');
-// const pipeImage = getImage('./assets/pipe.png');
 
 const frameInterval = 10;
 const pipeXGap = 300;

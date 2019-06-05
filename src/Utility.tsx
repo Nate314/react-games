@@ -8,4 +8,6 @@ export class Utility {
     static isOdd = (num: number): boolean => num % 2 === 1;
     // returns true if num passed is even
     static isEven = (num: number): boolean => !Utility.isOdd(num);
+    // returns true if the first two numbers in both arrays are equal to each other
+    static arePositionsEqual = (p1: number[], p2: number[]) => p1[0] === p2[0] && p1[1] === p2[1];
 }

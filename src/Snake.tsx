@@ -6,7 +6,6 @@ const boardWidth = 30;
 const boardHeight = 20;
 let squareSize = 0;
 const randomPosition = () => [Math.floor(Math.random() * boardHeight), Math.floor(Math.random() * boardWidth)];
-const arePositionsEqual = (p1: number[], p2: number[]) => p1[0] === p2[0] && p1[1] === p2[1];
 
 class BoardProps {
     snakeBody: number[][] = [];
@@ -34,12 +33,12 @@ class Board extends React.Component {
             Utility.array(boardWidth).map((v, columnindex) => {
                 let color;
                 this.props.snakeBody.forEach(bodyPart => {
-                    if (arePositionsEqual(bodyPart, [rowindex, columnindex]))
+                    if (Utility.arePositionsEqual(bodyPart, [rowindex, columnindex]))
                         color = this.snakeBodyColor;
                 });
-                if (arePositionsEqual(this.props.food, [rowindex, columnindex]))
+                if (Utility.arePositionsEqual(this.props.food, [rowindex, columnindex]))
                     color = this.foodColor;
-                else if (arePositionsEqual(this.props.snakeHead, [rowindex, columnindex]))
+                else if (Utility.arePositionsEqual(this.props.snakeHead, [rowindex, columnindex]))
                     color = this.snakeHeadColor;
                 else if (!color)
                     color = this.boardColor;
@@ -47,7 +46,7 @@ class Board extends React.Component {
             })
         );
         // trigger onEat event if the head is on top of food
-        if (arePositionsEqual(this.props.snakeHead, this.props.food)) this.props.onEat();
+        if (Utility.arePositionsEqual(this.props.snakeHead, this.props.food)) this.props.onEat();
         // calculating square size
         const maxWidth = Math.floor((window.innerWidth - 100) / boardWidth);
         const maxHeight = Math.floor((window.innerHeight - 100) / boardHeight);
@@ -60,7 +59,7 @@ class Board extends React.Component {
                         <div className="board-row" key={`row-${rowindex}`}>
                             {
                                 Utility.array(boardWidth).map((row, columnindex) =>
-                                    <div className="square" key={`square-${rowindex}-${columnindex}`}
+                                    <div className="snakesquare" key={`square-${rowindex}-${columnindex}`}
                                         style={
                                             {backgroundColor: squareColors[rowindex][columnindex],
                                             width: `${squareSize}px`, height: `${squareSize}px`}
@@ -96,10 +95,10 @@ class ScoreBoard extends React.Component {
         return (
             <div>
                 <div className="board-row">
-                    <div className="square" style={{width: `${squareSize * (boardWidth / 2)}px`}}>
+                    <div className="snakesquare" style={{width: `${squareSize * (boardWidth / 2)}px`}}>
                         Score: {this.props.score}
                     </div>
-                    <div className="square" style={{width: `${squareSize * (boardWidth / 2)}px`}}>
+                    <div className="snakesquare" style={{width: `${squareSize * (boardWidth / 2)}px`}}>
                         {
                             this.props.paused ?
                             <div style={{color:'green'}}><b>Paused</b></div>
@@ -110,7 +109,7 @@ class ScoreBoard extends React.Component {
                     </div>
                 </div>
                 <div className="board-row">
-                    <div className="square" style={{width: `${boardWidth * (squareSize)}px`}}>
+                    <div className="snakesquare" style={{width: `${boardWidth * (squareSize)}px`}}>
                         (r) Reset | (WASD, Arrow Keys) move snake | (esc) Escape
                     </div>
                 </div>
@@ -168,7 +167,7 @@ export default class SnakeGame extends React.Component {
                     state.snakeBody = Utility.array(state.snakeBody.length, [-1, -1]).concat(state.snakeBody);
                     state.snakeBody = state.snakeBody.slice(state.snakeBody.length - state.snakeLength);
                     state.snakeBody.forEach((bodyPart, i) => {
-                        if (arePositionsEqual(bodyPart, state.snakeHeadPosition)) state.gameover = true;
+                        if (Utility.arePositionsEqual(bodyPart, state.snakeHeadPosition)) state.gameover = true;
                     });
                 }
                 if (state.gameover) {
@@ -217,7 +216,7 @@ export default class SnakeGame extends React.Component {
                 state.foodPosition = randomPosition();
                 let isFoodInBody = false;
                 state.snakeBody.forEach(bodyPart => {
-                    if (arePositionsEqual(state.foodPosition, bodyPart)) isFoodInBody = true;
+                    if (Utility.arePositionsEqual(state.foodPosition, bodyPart)) isFoodInBody = true;
                 });
                 if (!isFoodInBody) break;
             }
