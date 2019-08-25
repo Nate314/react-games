@@ -8,6 +8,7 @@ import SnakeGame from './Snake';
 import FloatyStars from './FloatyStars';
 import FlappyFinchGame from './FlappyFinch';
 import GameOfLife from './GameOfLife';
+import Tetris from './Tetris';
 import * as serviceWorker from './serviceWorker';
 
 const production = true;
@@ -27,7 +28,8 @@ const games = [
     new Game('Snake', '/snake', SnakeGame),
     new Game('FloatyStars', '/floatystars', FloatyStars),
     new Game('FlappyFinch', '/flappyfinch', FlappyFinchGame),
-    new Game('GameOfLife', '/gameoflife', GameOfLife)
+    new Game('GameOfLife', '/gameoflife', GameOfLife),
+    new Game('Tetris', '/tetris', Tetris)
 ]
 
 class Index extends React.Component {
