@@ -1,5 +1,5 @@
 import React from 'react';
-import './GameOfLife.css';
+import './Tetris.css';
 import { Utility } from './Utility';
 
 // calculate the size of the squares so that the board fills most of the screen
@@ -30,7 +30,7 @@ class Board extends React.Component {
                 let color;
                 this.props.squares.forEach(square => {
                     if ((square.piece || square.blob) && Utility.arePositionsEqual([square.y, square.x], [rowindex, columnindex]))
-                        color = this.livingColor;
+                        color = !!square.blob ? square.blob : square.piece;
                 });
                 return color ? color : this.boardColor;
             })
@@ -66,9 +66,9 @@ class Board extends React.Component {
 class Square {
     x: number;
     y: number;
-    piece: boolean;
-    blob: boolean;
-    constructor(x: number, y: number, piece: boolean, blob: boolean) {
+    piece: string;
+    blob: string;
+    constructor(x: number, y: number, piece: string, blob: string) {
         this.x = x;
         this.y = y;
         this.piece = piece;
@@ -77,6 +77,7 @@ class Square {
 }
 
 class GameState {
+    score: number = 0;
     currentPiece: Square[] = [];
     paused: boolean = false;
     gametick: boolean = false;
@@ -86,15 +87,20 @@ class GameState {
 
 function getRandomPiece(): Square[] {
     const index = Math.floor(Math.random() * 7);
+    const colors: string[] = [
+        'green' /* I */, 'blue' /* Z */, 'indigo' /* S */,
+        'magenta' /* T */, 'yellow' /* O */,
+        'orange' /* L*/, 'red' /* J */
+    ];
     const result: Square[] = [
-        [[-1, 0], [0, 0], [1, 0], [2, 0]], // Line
+        [[-1, 0], [0, 0], [1, 0], [2, 0]], // I
         [[0, 0], [1, 0], [1, 1], [2, 1]], // Z
         [[0, 1], [1, 0], [1, 1], [2, 0]], // S
         [[0, 0], [1, 0], [2, 0], [1, 1]], // T
-        [[0, 0], [0, 1], [1, 0], [1, 1]], // Square
+        [[0, 0], [0, 1], [1, 0], [1, 1]], // O
         [[0, 1], [0, 0], [1, 0], [2, 0]], // L
-        [[2, 1], [0, 0], [1, 0], [2, 0]] // Backwards L
-    ][index].map(c => new Square(c[0], c[1], true, false));
+        [[2, 1], [0, 0], [1, 0], [2, 0]] // J
+    ][index].map(c => new Square(c[0], c[1], colors[index], ''));
     return result;
 }
 
@@ -109,7 +115,7 @@ export default class Tetris extends React.Component {
         Utility.setTitle('Tetris');
         const tempState = new GameState();
         tempState.squares = Utility.array(boardWidth).map((v, x) =>
-            Utility.array(boardHeight).map((v, y) => new Square(x, y, false, false))
+            Utility.array(boardHeight).map((v, y) => new Square(x, y, '', ''))
         ).flat();
         this.state = tempState;
         this.setState(tempState);
@@ -118,8 +124,13 @@ export default class Tetris extends React.Component {
     }
 
     repaint(state: GameState): GameState {
-        state.squares.forEach(s => s.piece = false);
-        state.currentPiece.forEach(s => state.squares.find(sq => positionsEqual(s, sq))!.piece = true);
+        state.squares.forEach(s => s.piece = '');
+        state.currentPiece.forEach(s => {
+            const asdf = state.squares.find(sq => positionsEqual(s, sq));
+            if (asdf) {
+                asdf.piece = state.currentPiece[0].piece;
+            }
+        });
         return state;
     }
 
@@ -134,16 +145,46 @@ export default class Tetris extends React.Component {
             potentialState.currentPiece.forEach(s => {
                 if (!result) {
                     const potentialBlobPart = potentialState.squares.find(sq => positionsEqual(s, sq));
-                    result = !!potentialBlobPart ? potentialBlobPart.blob : true;
+                    result = !!potentialBlobPart ? !!potentialBlobPart.blob : true;
                 }
             });
             return result;
         };
         const convertPieceToBlob = (state: GameState): GameState => {
             state.squares = state.squares.map(s => {
-                s.blob = s.blob ? true : !!state.currentPiece.find(sq => positionsEqual(s, sq));
+                const asdf = state.currentPiece.find(sq => positionsEqual(s, sq));
+                if (asdf) {
+                    s.blob = !!s.blob ? s.blob : asdf.piece;
+                }
                 return s;
             });
+            return state;
+        };
+        const getFullRows = (state: GameState): number[] => {
+            let result: number[] = [];
+            for (let i = 0; i < boardHeight; i++) {
+                const emptySquares = state.squares.filter(s => s.y === i && !s.blob && !s.piece);
+                if (emptySquares.length === 0) {
+                    result.push(i);
+                }
+            }
+            return result;
+        };
+        const removeFullRows = (state: GameState, fullRowIndecies: number[]): GameState => {
+            const temp = '_____';
+            state.squares = state.squares.map(s => {
+                if (fullRowIndecies.includes(s.y)) {
+                    s.blob = temp;
+                    s.piece = '';
+                    s.y = fullRowIndecies.indexOf(s.y);
+                }
+                return s;
+            });
+            fullRowIndecies.forEach(emptyRowIndex => {
+                state.squares.filter(s => s.y < emptyRowIndex)
+                    .forEach(s => s.y += s.blob !== temp ? 1 : 0);
+            });
+            state.squares.filter(s => s.blob === temp).forEach(s => s.blob = '');
             return state;
         };
         this.setState((state: GameState) => {
@@ -156,6 +197,10 @@ export default class Tetris extends React.Component {
                         state = movePieceDown(state);
                     } else {
                         state = convertPieceToBlob(state);
+                        const fullRows = getFullRows(state);
+                        state.score += fullRows.length;
+                        state = removeFullRows(state, fullRows);
+                        state.currentPiece = [];
                     }
                 }
                 if (addNewPiece) {
@@ -172,7 +217,6 @@ export default class Tetris extends React.Component {
 
     keyDown = (e: any) => {
         const k = e && e.key ? e.key : e;
-        console.log(k);
         const movePiece = (direction: number): void => {
             this.setState((state: GameState) => {
                 if (!state.paused || state.gametick) {
@@ -266,19 +310,26 @@ export default class Tetris extends React.Component {
         return (
             <div>
                 <Board squares={this.state.squares} />
-                <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
-                {
-                    [
-                        {'key': 'Escape', 'action': 'Play/Pause'},
-                        {'key': 'WASD/Arrow Keys', 'action': 'Move'},
-                        {'key': ',', 'action': 'Rotate Counter Clockwise'},
-                        {'key': '.', 'action': 'Rotate Clockwise'}
-                    ].map((instruction, i) =>
-                        <span style={{cursor:'pointer'}} onClick={() => this.keyDown(instruction.key)}>
-                            ({instruction.key}) {instruction.action} {i < 4 ? '| ' : ''}
-                        </span>
-                    )
-                }
+                <div className="board-row">
+                    <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
+                    {
+                        [
+                            {'key': 'Escape', 'action': 'Play/Pause'},
+                            {'key': 'WASD/Arrow Keys', 'action': 'Move'},
+                            {'key': ',', 'action': 'Rotate Counter Clockwise'},
+                            {'key': '.', 'action': 'Rotate Clockwise'}
+                        ].map((instruction, i) =>
+                            <span style={{cursor:'pointer'}} onClick={() => this.keyDown(instruction.key)}>
+                                ({instruction.key}) {instruction.action} {i < 4 ? '| ' : ''}
+                            </span>
+                        )
+                    }
+                    </div>
+                </div>
+                <div className="board-row">
+                    <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
+                        Score: { this.state.score }
+                    </div>
                 </div>
             </div>
         );
