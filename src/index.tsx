@@ -11,8 +11,6 @@ import GameOfLife from './GameOfLife';
 import Tetris from './Tetris';
 import * as serviceWorker from './serviceWorker';
 
-const production = true;
-
 class Game {
     title: string = '';
     url: string = '';
@@ -55,7 +53,7 @@ class Index extends React.Component {
 class App extends React.Component {
     render() {
         return (
-            <Router basename={production ? '/react-games/' : '/'}>
+            <Router basename={'/'}>
                 <Route path="/" exact component={Index} />
                 {
                     games.map(game =>
