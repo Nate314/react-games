@@ -4,10 +4,10 @@ import Music from './Music';
 import { Utility } from './Utility';
 // const getImage = (url: string) => true ? `.${require(url)}` : `${require(url)}`;
 const prefix = '.';
-const sky58Image = `${prefix}${require('./assets/sky58.png')}`;
-const birdImage = `${prefix}${require('./assets/bird.png')}`;
-const groundImage = `${prefix}${require('./assets/ground.png')}`;
-const pipeImage = `${prefix}${require('./assets/pipe.png')}`;
+const sky58Image = `${prefix}${require('./assets/flappyfinch/sky58.png')}`;
+const birdImage = `${prefix}${require('./assets/flappyfinch/bird.png')}`;
+const groundImage = `${prefix}${require('./assets/flappyfinch/ground.png')}`;
+const pipeImage = `${prefix}${require('./assets/flappyfinch/pipe.png')}`;
 
 const frameInterval = 10;
 const pipeXGap = 300;
