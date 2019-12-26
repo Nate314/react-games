@@ -1,14 +1,14 @@
 // React Components
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
 // Games
-import SnakeGame from './Snake';
-import FloatyStars from './FloatyStars';
-import FlappyFinchGame from './FlappyFinch';
-import GameOfLife from './GameOfLife';
-import Tetris from './Tetris';
+import SnakeGame from './games/Snake';
+import FloatyStars from './games/FloatyStars';
+import FlappyFinchGame from './games/FlappyFinch';
+import GameOfLife from './games/GameOfLife';
+import Tetris from './games/Tetris';
 // Material Design
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -17,48 +17,53 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 
 class Game {
     title: string = '';
     image: string = '';
+    gif: string = '';
     url: string = '';
     reactcomponent: any = undefined;
-    constructor(title: string, image: string, url: string, reactcomponent: any) {
+    constructor(title: string, image: string, gif: string, url: string, reactcomponent: any) {
         this.title = title;
         this.image = image;
+        this.gif = gif;
         this.url = url;
         this.reactcomponent = reactcomponent;
     }
 }
 
 const games = [
-    new Game('Snake', 'assets/menu/snake.gif', '/snake', SnakeGame),
-    new Game('FloatyStars', 'assets/menu/floatystars.gif', '/floatystars', FloatyStars),
-    new Game('FlappyFinch', 'assets/menu/flappyfinch.gif', '/flappyfinch', FlappyFinchGame),
-    new Game('GameOfLife', 'assets/menu/gameoflife.gif', '/gameoflife', GameOfLife),
-    new Game('Tetris', 'assets/menu/tetris.gif', '/tetris', Tetris)
+    new Game('Snake', 'assets/menu/snake.png', 'assets/menu/snake.gif', '/snake', SnakeGame),
+    new Game('FloatyStars', 'assets/menu/floatystars.png', 'assets/menu/floatystars.gif', '/floatystars', FloatyStars),
+    new Game('FlappyFinch', 'assets/menu/flappyfinch.png', 'assets/menu/flappyfinch.gif', '/flappyfinch', FlappyFinchGame),
+    new Game('GameOfLife', 'assets/menu/gameoflife.png', 'assets/menu/gameoflife.gif', '/gameoflife', GameOfLife),
+    new Game('Tetris', 'assets/menu/tetris.png', 'assets/menu/tetris.gif', '/tetris', Tetris)
 ];
 
-function GameCard(props: {title: string, image: string, url: string}) {
+function GameCard(props: Game) {
+    const [isHover, setIsHover] = useState(false);
+    const getImage = () => isHover ? props.gif : props.image;
     return (
-        <Card>
+        <Card elevation={5}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}>
             <CardActionArea>
-                <CardMedia style={{height:150}} image={props.image}
+                <CardMedia style={{height:150}} image={getImage()}
                     title={`Image of ${props.title} game`} />
             </CardActionArea>
             <CardActions>
-                <div className="container row">
-                    <div className="col-7">
+                <div className="container">
+                    <div>
                         <Typography gutterBottom
                             variant="h5" component="h2"
                         >
                             {props.title}
                         </Typography>
                     </div>
-                    <div className="col-5">
+                    <div style={{textAlign:"right"}}>
                         <Button size="small" color="primary"
-                            onClick={() => document.location.pathname = props.url}
+                            onClick={() => window.location.pathname = props.url}
                         >
                             Play Game
                         </Button>
@@ -69,9 +74,15 @@ function GameCard(props: {title: string, image: string, url: string}) {
     );
 };
 
-
 class Index extends React.Component {
+    updateDimensions = () => this.setState({ width: window.innerWidth, height: window.innerHeight });
+    componentDidMount = () => window.addEventListener('resize', this.updateDimensions);
+    componentWillUnmount = () => window.removeEventListener('resize', this.updateDimensions);
     render() {
+        const width: number = window.innerWidth;
+        let columnClass: string = width < 1200 ?
+            (width < 992 ? (width < 768 ? 'col-12'
+                : 'col-6') : 'col-4') : 'col-3';
         return (
             <div style={{backgroundColor: "#AAAAAA", height: "100vh"}}>
                 <div className="container">
@@ -90,9 +101,11 @@ class Index extends React.Component {
                     <div className="row">
                     {
                         games.map(game =>
-                            <div key="game.title" className="col-4">
-                                <GameCard title={game.title}
-                                    image={game.image} url={game.url} />
+                            <div key={game.title} className={columnClass}>
+                                <br />
+                                <GameCard title={game.title} url={game.url}
+                                    image={game.image} gif={game.gif}
+                                    reactcomponent={undefined}/>
                                 <br />
                             </div>
                         )
@@ -108,12 +121,37 @@ class App extends React.Component {
     render() {
         return (
             <BrowserRouter basename={'/'}>
-                <Route path="/" exact component={Index} />
-                {
-                    games.map(game =>
-                        <Route key={game.url} path={game.url} exact component={game.reactcomponent} />
-                    )
-                }
+                <Switch>
+                    <Route path="/" exact component={Index} />
+                    {
+                        games.map(game =>
+                            <Route key={game.url} path={game.url} exact component={game.reactcomponent} />
+                        )
+                    }
+                    {
+                        games.map(g => g.url).includes(window.location.pathname)
+                        ? document.getElementsByTagName('body')[0].style.backgroundColor = '#FFFFFF'
+                        : document.getElementsByTagName('body')[0].style.backgroundColor = '#AAAAAA'
+                    }
+                    <Route path="*" exact component={() => {
+                        return (
+                            <div style={{backgroundColor: "#AAAAAA"}}>
+                                <br />
+                                <div className="container">
+                                    <Card>
+                                        <CardContent>
+                                            <Typography component="p">
+                                                ¯\_(ツ)_/¯ NOT FOUND
+                                                <br />
+                                                <Link to="/">Go back home</Link>
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
+                        );
+                    }} />
+                </Switch>
             </BrowserRouter>
         );
     }

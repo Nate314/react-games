@@ -1,13 +1,7 @@
 import React from 'react';
 import './FlappyFinch.css';
-import Music from './Music';
-import { Utility } from './Utility';
-// const getImage = (url: string) => true ? `.${require(url)}` : `${require(url)}`;
-const prefix = '.';
-const sky58Image = `${prefix}${require('./assets/flappyfinch/sky58.png')}`;
-const birdImage = `${prefix}${require('./assets/flappyfinch/bird.png')}`;
-const groundImage = `${prefix}${require('./assets/flappyfinch/ground.png')}`;
-const pipeImage = `${prefix}${require('./assets/flappyfinch/pipe.png')}`;
+import Music from '../Music';
+import { Utility } from '../Utility';
 
 const frameInterval = 10;
 const pipeXGap = 300;
@@ -125,9 +119,9 @@ class Pipe extends React.Component {
         return (
             <div>
                 {this.nomNomEaten ? '' : <NomNom x={this.nomNomProps.x} y={this.nomNomProps.y}/>}
-                <img className="pipe" src={pipeImage} style={{ transform:'scale(-1, -1)',
+                <img className="pipe" src="assets/flappyfinch/pipe.png" style={{ transform:'scale(-1, -1)',
                     top:`${topPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></img>
-                <img className="pipe" src={pipeImage} style={{ transform:'scale(-1, 1)',
+                <img className="pipe" src="assets/flappyfinch/pipe.png" style={{ transform:'scale(-1, 1)',
                     top:`${bottomPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></img>
             </div>
         )
@@ -154,7 +148,7 @@ class Bird extends React.Component {
 
     render() {
         return (
-            <img className="bird" src={birdImage}
+            <img className="bird" src="assets/flappyfinch/bird.png"
                 style={{left:`${this.props.x}px`, top:`${this.props.y}px`,
                         width:`${birdSize}px`, height:`${birdSize}px`}}></img>
         )
@@ -315,13 +309,13 @@ export default class FlappyFinchGame extends React.Component {
             <div className="paused">{this.state.gameover ? 'GAME OVER' : 'PAUSED'}</div> : '';
         const ground = Utility.array(5).map((v, i) =>
             <img key={`background${i}`}
-                className="ground" src={groundImage}
+                className="ground" src="assets/flappyfinch/ground.png"
                 style={{top:`${height - 50}px`, left:`${this.state.groundX + (i * width * 0.625)}px`, height:'50px',
                 color:'white', textAlign:'left', fontSize:'20px'}}></img>
         );
         const background = Utility.array(5).map((v, i) =>
             <img key={`background${i}`}
-                className="background" src={sky58Image}
+                className="background" src="assets/flappyfinch/sky58.png"
                 style={{left: `${10 + this.state.skyX + (i * width * 0.5)}px`}}></img>
         );
         const scoreboard = <div className="scoreboard">

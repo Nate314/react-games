@@ -1,6 +1,6 @@
 import React from 'react';
 import './FloatyStars.css';
-import { Utility } from './Utility';
+import { Utility } from '../Utility';
 
 const numberOfStars = 100;
 const starSize = 10;

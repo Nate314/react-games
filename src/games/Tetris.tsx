@@ -1,6 +1,6 @@
 import React from 'react';
 import './Tetris.css';
-import { Utility } from './Utility';
+import { Utility } from '../Utility';
 
 // calculate the size of the squares so that the board fills most of the screen
 //  and the max length is the measurement of the longer edge
