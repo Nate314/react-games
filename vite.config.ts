@@ -18,5 +18,5 @@ export default defineConfig({
     base: '/',
     plugins: [react(), spaFallback()],
     build: { outDir, emptyOutDir: true },
-    test: { environment: 'jsdom', globals: true }
+    test: { environment: 'jsdom', globals: true, include: ['src/**/*.test.{ts,tsx}'] }
 });
