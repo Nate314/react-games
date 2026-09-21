@@ -2,13 +2,10 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Page } from '@playwright/test';
 
-// Known pre-existing app warning: the Snake board calls onEat during render.
-const knownNoise = [/Cannot update during an existing state transition/];
-
-// Collects console errors and uncaught page errors, minus known noise.
+// Collects console errors and uncaught page errors.
 export function trackErrors(page: Page): string[] {
     const errors: string[] = [];
-    const add = (text: string) => { if (!knownNoise.some(re => re.test(text))) errors.push(text); };
+    const add = (text: string) => { errors.push(text); };
     page.on('console', msg => { if (msg.type() === 'error') add(msg.text()); });
     page.on('pageerror', err => add(err.message));
     return errors;

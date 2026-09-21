@@ -48,7 +48,7 @@ test('flappyfinch: loads clean, flaps, pauses and resets', async ({ page }) => {
     const before = await bird.evaluate(e => (e as HTMLElement).style.top);
     await page.keyboard.press(' ');
     await page.clock.runFor(200);
-    expect(await bird.evaluate(e => (e as HTMLElement).style.top)).not.toBe(before);
+    await expect.poll(() => bird.evaluate(e => (e as HTMLElement).style.top)).not.toBe(before);
     await page.keyboard.press('Escape');
     await expect(page.getByText('PAUSED')).toBeVisible();
     await page.keyboard.press('Escape');

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-    boardHeight, boardWidth, eatFood, initialSnakeState, nextDirection, stepSnake, type SnakeState
+    advanceSnake, boardHeight, boardWidth, eatFood, initialSnakeState, nextDirection, stepSnake, type SnakeState
 } from './Snake.logic';
 
 const withState = (patch: Partial<SnakeState>): SnakeState => ({ ...initialSnakeState(), ...patch });
@@ -89,5 +89,24 @@ describe('eatFood', () => {
         let i = 0;
         const s = eatFood(withState({ snakeBody: [[0, 0]] }), () => values[i++]);
         expect(s.foodPosition).toEqual([10, 15]);
+    });
+});
+
+describe('advanceSnake', () => {
+    it('moves without eating when the head misses the food', () => {
+        const s = advanceSnake(withState({}), () => 0.5);
+        expect(s.snakeHeadPosition).toEqual([10, 4]);
+        expect(s.score).toBe(0);
+    });
+    it('eats the food the head lands on', () => {
+        const s = advanceSnake(withState({ snakeHeadPosition: [10, 14], foodPosition: [10, 15] }), () => 0);
+        expect(s.snakeHeadPosition).toEqual([10, 15]);
+        expect(s.score).toBe(5);
+        expect(s.snakeLength).toBe(4);
+        expect(s.foodPosition).toEqual([0, 0]);
+    });
+    it('does nothing while paused', () => {
+        const before = withState({ paused: true, snakeHeadPosition: [10, 14] });
+        expect(advanceSnake(before, () => 0)).toBe(before);
     });
 });

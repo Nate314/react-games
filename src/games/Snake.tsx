@@ -2,7 +2,7 @@ import React from 'react';
 import './Snake.css';
 import { Utility } from '../Utility';
 import {
-    boardHeight, boardWidth, eatFood as applyEatFood, initialSnakeState, nextDirection, stepSnake, type SnakeState
+    advanceSnake, boardHeight, boardWidth, initialSnakeState, nextDirection, type SnakeState
 } from './Snake.logic';
 
 let squareSize = 0;
@@ -11,7 +11,6 @@ class BoardProps {
     snakeBody: number[][] = [];
     snakeHead: number[] = [];
     food: number[] = [];
-    onEat: any;
 }
 
 class Board extends React.Component {
@@ -45,8 +44,6 @@ class Board extends React.Component {
                 return color;
             })
         );
-        // trigger onEat event if the head is on top of food
-        if (Utility.arePositionsEqual(this.props.snakeHead, this.props.food)) this.props.onEat();
         // calculating square size
         const maxWidth = Math.floor((window.innerWidth - 100) / boardWidth);
         const maxHeight = Math.floor((window.innerHeight - 100) / boardHeight);
@@ -133,11 +130,13 @@ export default class SnakeGame extends React.Component {
     }
 
     gameTick() {
+        let ate = false;
         this.setState((state: SnakeState) => {
             if (state.paused || state.gameover) return state;
             // move snake in direction set by keyDown method
             this.currentDirection = state.snakeDirection;
-            const next = stepSnake(state);
+            const next = advanceSnake(state, Math.random);
+            ate = next.score > state.score;
             if (next.gameover) {
                 const hs = localStorage.getItem('nate314.snake.highScore');
                 let newHighScore = true;
@@ -147,7 +146,15 @@ export default class SnakeGame extends React.Component {
                 }
             }
             return next;
+        }, () => {
+            // eating restarts the tick timer, as it did before
+            if (ate) this.restartInterval(this.state.gameTickInterval);
         });
+    }
+
+    restartInterval(ms: number) {
+        clearInterval(this.interval);
+        this.interval = setInterval(() => this.gameTick(), ms);
     }
 
     keyDown = (e: any) => {
@@ -168,15 +175,6 @@ export default class SnakeGame extends React.Component {
         document.addEventListener("keydown", this.keyDown);
     }
 
-    eatFood() {
-        this.setState((state: SnakeState) => {
-            const next = applyEatFood(state, Math.random);
-            clearInterval(this.interval);
-            this.interval = setInterval(() => this.gameTick(), next.gameTickInterval);
-            return next;
-        });
-    }
-
     render() {
         let highscore = Number(localStorage.getItem('nate314.snake.highScore'));
         highscore = isNaN(highscore) ? 0 : highscore;
@@ -187,7 +185,6 @@ export default class SnakeGame extends React.Component {
                     snakeBody={this.state.snakeBody}
                     snakeHead={this.state.snakeHeadPosition}
                     food={this.state.foodPosition}
-                    onEat={() => this.eatFood()}
                 />
                 <ScoreBoard
                     score={this.state.score}

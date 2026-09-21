@@ -80,3 +80,9 @@ export const eatFood = (state: SnakeState, rng: () => number): SnakeState => {
         gameTickInterval: state.gameTickInterval - gameTickDelta
     };
 };
+
+// one game tick: move the snake, then eat the food if the head landed on it
+export const advanceSnake = (state: SnakeState, rng: () => number): SnakeState => {
+    const stepped = stepSnake(state);
+    return samePosition(stepped.snakeHeadPosition, stepped.foodPosition) ? eatFood(stepped, rng) : stepped;
+};
