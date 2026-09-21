@@ -1,7 +1,7 @@
 * { box-sizing: border-box; }
 
-/* Only menu and 404 pages are themed (via .page); game screens keep their own colors. */
-body { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+/* Page chrome (menu, 404, page background, game HUD) is themed; boards and sprites keep their own colors. */
+body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
 
 .page { min-height: 100vh; background: var(--bg); color: var(--text); }
 .page__header { max-width: 1200px; margin: 0 auto; padding: 16px 16px 0; display: flex; justify-content: flex-end; }
