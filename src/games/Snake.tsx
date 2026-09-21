@@ -1,6 +1,7 @@
 import React from 'react';
 import './Snake.css';
 import { Utility } from '../Utility';
+import { GameHud } from '../components/GameHud';
 import {
     advanceSnake, boardHeight, boardWidth, initialSnakeState, nextDirection, type SnakeState
 } from './Snake.logic';
@@ -72,49 +73,6 @@ class Board extends React.Component {
     }
 }
 
-class ScoreBoardProps {
-    score: number = 0;
-    highscore: number = 0;
-    paused: boolean = false;
-    gameover: boolean = false;
-}
-
-class ScoreBoard extends React.Component {
-
-    props: ScoreBoardProps;
-
-    constructor(props: ScoreBoardProps) {
-        super(props);
-        this.props = props;
-    }
-
-    render() {
-        return (
-            <div>
-                <div className="board-row">
-                    <div className="snakesquare" style={{width: `${squareSize * (boardWidth / 2)}px`}}>
-                        Score: {this.props.score}
-                    </div>
-                    <div className="snakesquare" style={{width: `${squareSize * (boardWidth / 2)}px`}}>
-                        {
-                            this.props.paused ?
-                            <div style={{color:'green'}}><b>Paused</b></div>
-                            : this.props.gameover ?
-                            <div style={{color:'red'}}><b>Game Over</b></div>
-                            : `High Score: ${this.props.highscore}`
-                        }
-                    </div>
-                </div>
-                <div className="board-row">
-                    <div className="snakesquare" style={{width: `${boardWidth * (squareSize)}px`}}>
-                        (r) Reset | (WASD, Arrow Keys) move snake | (esc) Escape
-                    </div>
-                </div>
-            </div>
-        );
-    }
-}
-
 export default class SnakeGame extends React.Component {
 
     currentDirection: string;
@@ -178,7 +136,7 @@ export default class SnakeGame extends React.Component {
     render() {
         let highscore = Number(localStorage.getItem('nate314.snake.highScore'));
         highscore = isNaN(highscore) ? 0 : highscore;
-        // show board and scoreboard on the screen
+        // show board and HUD on the screen
         return (
             <div>
                 <Board
@@ -186,11 +144,22 @@ export default class SnakeGame extends React.Component {
                     snakeHead={this.state.snakeHeadPosition}
                     food={this.state.foodPosition}
                 />
-                <ScoreBoard
-                    score={this.state.score}
-                    highscore={highscore}
-                    paused={this.state.paused}
-                    gameover={this.state.gameover}
+                <GameHud
+                    width={boardWidth * squareSize}
+                    stats={[
+                        { label: 'Score', value: this.state.score },
+                        { label: 'High Score', value: highscore },
+                    ]}
+                    status={
+                        this.state.paused ? { text: 'Paused', tone: 'info' }
+                        : this.state.gameover ? { text: 'Game Over', tone: 'danger' }
+                        : null
+                    }
+                    controls={[
+                        { keys: 'R', action: 'Reset' },
+                        { keys: 'WASD / Arrows', action: 'Move' },
+                        { keys: 'Esc', action: 'Pause' },
+                    ]}
                 />
             </div>
         );
