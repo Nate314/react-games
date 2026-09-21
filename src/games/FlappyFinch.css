@@ -64,10 +64,7 @@
     border-style: solid;
 }
 
-.scoreboard {
-    position: absolute;
-    z-index: 100;
-    font-size: 20px;
-    color: white;
-    text-align: left;
+/* Clicks anywhere flap the bird, so the HUD must never swallow them. */
+.game .hud--overlay {
+    pointer-events: none;
 }

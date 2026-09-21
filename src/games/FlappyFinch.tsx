@@ -1,6 +1,7 @@
 import React from 'react';
 import './FlappyFinch.css';
 import Music from '../Music';
+import { GameHud } from '../components/GameHud';
 import { Utility } from '../Utility';
 import {
     BirdProps, PipeProps, FlappyFinchGameState, frameInterval, pipeWidth, pipeYGap, birdSize,
@@ -206,24 +207,16 @@ export default class FlappyFinchGame extends React.Component {
                 className="background" src="assets/flappyfinch/sky58.png"
                 style={{left: `${10 + this.state.skyX + (i * width * 0.5)}px`}}></img>
         );
-        const scoreboard = <div className="scoreboard">
-                &nbsp;&nbsp;&nbsp;Score:&nbsp;{this.state.score}
-                <br />
-                &nbsp;&nbsp;&nbsp;High Score:&nbsp;{this.state.highscore}
-                <br />
-                &nbsp;&nbsp;&nbsp;
-                <span onClick={() => this.keyDown('r')}>
-                    (r) Reset
-                </span>
-                &nbsp;|&nbsp;
-                <span onClick={() => this.keyDown('Escape')}>
-                    (Escape) Pause
-                </span>
-                &nbsp;|&nbsp;
-                <span>
-                    (Space) Flap
-                </span>
-            </div>;
+        const scoreboard = <GameHud variant="overlay"
+            stats={[
+                { label: 'Score', value: this.state.score },
+                { label: 'High Score', value: this.state.highscore }
+            ]}
+            controls={[
+                { keys: 'R', action: 'Reset' },
+                { keys: 'Esc', action: 'Pause' },
+                { keys: 'Space', action: 'Flap' }
+            ]}/>;
         const shouldPlayFlapSound = (i: number) => Utility.isOdd(flap)
             ? (this.state.paused || this.state.gameover
                 ? false : Math.floor(flap / 2) % 4 === i)
