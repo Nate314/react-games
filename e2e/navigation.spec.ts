@@ -23,7 +23,7 @@ for (const game of games) {
 
 test('unknown path shows NotFound with a way home', async ({ page }) => {
     await page.goto('/no-such-game');
-    await expect(page.getByText('NOT FOUND')).toBeVisible();
+    await expect(page.getByRole('main').getByText('NOT FOUND')).toBeVisible();
     await page.getByRole('link', { name: 'Go back home' }).click();
     await expect(page).toHaveURL(/\/$/);
 });

@@ -2,7 +2,7 @@
 
 A small static site of five browser games built with React 19, TypeScript and Vite: Flappy Finch, Floaty Stars, Game of Life, Snake and Tetris. It is served with GitHub Pages from the `docs/` folder.
 
-The menu follows your system light or dark setting, and the button at the top right switches it. The choice is saved in your browser only after you use the button. The game screens keep their own colors.
+Every page has a header with the page title, a light and dark toggle (it follows your system setting until you use it, and the choice is saved only after that), and a back link: to the game menu from a game or the 404 page, and to nathangawith.com from the menu. Game pages also have a maximize button that hides the header and gives the game the full window; games resize live without restarting, and the small button at the top right brings the header back. Boards and sprites keep their own colors.
 
 ## Quick start
 
