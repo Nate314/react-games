@@ -3,13 +3,14 @@ import './Snake.css';
 import { Utility } from '../Utility';
 import { GameHud } from '../components/GameHud';
 import { fitSquareSize } from './boardSize';
+import type { GameProps } from '../stage';
 import {
     advanceSnake, boardHeight, boardWidth, initialSnakeState, nextDirection, type SnakeState
 } from './Snake.logic';
 
-let squareSize = 0;
 
 class BoardProps {
+    squareSize = 0;
     snakeBody: number[][] = [];
     snakeHead: number[] = [];
     food: number[] = [];
@@ -46,8 +47,7 @@ class Board extends React.Component {
                 return color;
             })
         );
-        // calculating square size
-        squareSize = fitSquareSize(boardWidth, boardHeight);
+        const squareSize = this.props.squareSize;
         // return rendered board
         return (
             <div>
@@ -72,13 +72,13 @@ class Board extends React.Component {
     }
 }
 
-export default class SnakeGame extends React.Component {
+export default class SnakeGame extends React.Component<GameProps> {
 
     currentDirection: string;
     interval: any;
     state: SnakeState;
 
-    constructor(props: any) {
+    constructor(props: GameProps) {
         super(props);
         Utility.setTitle('Snake');
         this.state = initialSnakeState();
@@ -133,12 +133,14 @@ export default class SnakeGame extends React.Component {
     }
 
     render() {
+        const squareSize = fitSquareSize(boardWidth, boardHeight, this.props.stage);
         let highscore = Number(localStorage.getItem('nate314.snake.highScore'));
         highscore = isNaN(highscore) ? 0 : highscore;
         // show board and HUD on the screen
         return (
             <div>
                 <Board
+                    squareSize={squareSize}
                     snakeBody={this.state.snakeBody}
                     snakeHead={this.state.snakeHeadPosition}
                     food={this.state.foodPosition}

@@ -3,6 +3,7 @@ import './GameOfLife.css';
 import { Utility } from '../Utility';
 import { GameHud } from '../components/GameHud';
 import { fitSquareSize } from './boardSize';
+import type { GameProps } from '../stage';
 import {
     createSquares, nextGeneration, randomizeSquares, setAllSquares, toggleSquare, type Square
 } from './GameOfLife.logic';
@@ -14,9 +15,9 @@ const boardWidth = Math.floor(window.innerWidth > window.innerHeight ? maxLength
     : (window.innerWidth / window.innerHeight) * maxLength);
 const boardHeight = Math.floor(window.innerHeight > window.innerWidth ? maxLength
     : (window.innerHeight / window.innerWidth) * maxLength);
-let squareSize = 0;
 
 class BoardProps {
+    squareSize = 0;
     squares: Square[] = [];
     clicked: any;
 }
@@ -44,8 +45,7 @@ class Board extends React.Component {
                 return color ? color : this.boardColor;
             })
         );
-        // calculating square size
-        squareSize = fitSquareSize(boardWidth, boardHeight);
+        const squareSize = this.props.squareSize;
         // return rendered board
         return (
             <div>
@@ -77,7 +77,7 @@ class GameState {
     gameTickInterval: number = 250;
 }
 
-export default class GameOfLife extends React.Component {
+export default class GameOfLife extends React.Component<GameProps> {
 
     gameTickDelta: number = 0;
     snakeLengthDelta: number = 3;
@@ -85,7 +85,7 @@ export default class GameOfLife extends React.Component {
     interval: any;
     state: GameState;
 
-    constructor(props: any) {
+    constructor(props: GameProps) {
         super(props);
         Utility.setTitle('Game of Life');
         const tempState = new GameState();
@@ -140,10 +140,12 @@ export default class GameOfLife extends React.Component {
     }
 
     render() {
+        const squareSize = fitSquareSize(boardWidth, boardHeight, this.props.stage);
         // show board and scoreboard on the screen
         return (
             <div>
                 <Board
+                    squareSize={squareSize}
                     squares={this.state.squares}
                     clicked={(rowindex: number, columnindex: number) => this.clicked(rowindex, columnindex)}/>
                 <GameHud

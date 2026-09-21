@@ -3,15 +3,16 @@ import './Tetris.css';
 import { Utility } from '../Utility';
 import { GameHud } from '../components/GameHud';
 import { fitSquareSize } from './boardSize';
+import type { GameProps } from '../stage';
 import {
     Square, GameState, boardWidth, boardHeight, createBoard, tick, movePiece, rotatePiece
 } from './Tetris.logic';
 
 // calculate the size of the squares so that the board fills most of the screen
 //  and the max length is the measurement of the longer edge
-let squareSize = 0;
 
 class BoardProps {
+    squareSize = 0;
     squares: Square[] = [];
 }
 
@@ -38,8 +39,7 @@ class Board extends React.Component {
                 return color ? color : this.boardColor;
             })
         );
-        // calculating square size
-        squareSize = fitSquareSize(boardWidth, boardHeight);
+        const squareSize = this.props.squareSize;
         // return rendered board
         return (
             <div>
@@ -64,11 +64,11 @@ class Board extends React.Component {
     }
 }
 
-export default class Tetris extends React.Component {
+export default class Tetris extends React.Component<GameProps> {
 
     state: GameState;
 
-    constructor(props: any) {
+    constructor(props: GameProps) {
         super(props);
         Utility.setTitle('Tetris');
         const tempState = new GameState();
@@ -106,10 +106,11 @@ export default class Tetris extends React.Component {
     }
 
     render() {
+        const squareSize = fitSquareSize(boardWidth, boardHeight, this.props.stage);
         // show board and scoreboard on the screen
         return (
             <div>
-                <Board squares={this.state.squares} />
+                <Board squares={this.state.squares} squareSize={squareSize} />
                 <GameHud
                     width={boardWidth * squareSize}
                     stats={[{ label: 'Score', value: this.state.score }]}
