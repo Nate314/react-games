@@ -1,11 +1,6 @@
 import type { ReactNode } from 'react';
-import { ThemeToggle } from './ThemeToggle';
 
+// Wraps scrolling page content (menu, 404); the shared header lives in AppShell.
 export function Layout({ children }: { children: ReactNode }) {
-    return (
-        <div className="page">
-            <header className="page__header"><ThemeToggle /></header>
-            <main className="page__content">{children}</main>
-        </div>
-    );
+    return <div className="page"><div className="page__content">{children}</div></div>;
 }

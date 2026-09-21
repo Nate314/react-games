@@ -47,7 +47,7 @@ describe('App', () => {
 
     it('unknown route shows NotFound with a way home', () => {
         renderAt('/nope');
-        expect(screen.getByText(/not found/i)).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: /home/i })).toHaveAttribute('href', '/');
+        expect(screen.getByText(/NOT FOUND/)).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /go back home/i })).toHaveAttribute('href', '/');
     });
 });

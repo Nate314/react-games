@@ -10,7 +10,9 @@ export interface GameEntry {
     title: string;
     description: string;
     image: string;
-    component: ComponentType;
+    // Games not yet migrated to `stage` are typed loosely; they receive it as a prop regardless.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    component: ComponentType<any>;
 }
 
 // Single source for menu cards and routes (route path is `/${id}`).
@@ -21,3 +23,6 @@ export const games: GameEntry[] = [
     { id: 'gameoflife', title: 'GameOfLife', description: "Conway's cellular automaton, at your fingertips.", image: '/assets/menu/gameoflife.png', component: GameOfLife },
     { id: 'tetris', title: 'Tetris', description: 'Stack falling blocks and clear lines.', image: '/assets/menu/tetris.png', component: Tetris }
 ];
+
+export const routeTitle = (pathname: string): string | null =>
+    games.find(game => `/${game.id}` === pathname)?.title ?? null;
