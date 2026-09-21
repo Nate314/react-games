@@ -1,11 +1,11 @@
 import React from 'react';
 import './Snake.css';
 import { Utility } from '../Utility';
+import {
+    boardHeight, boardWidth, eatFood as applyEatFood, initialSnakeState, nextDirection, stepSnake, type SnakeState
+} from './Snake.logic';
 
-const boardWidth = 30;
-const boardHeight = 20;
 let squareSize = 0;
-const randomPosition = () => [Math.floor(Math.random() * boardHeight), Math.floor(Math.random() * boardWidth)];
 
 class BoardProps {
     snakeBody: number[][] = [];
@@ -118,90 +118,49 @@ class ScoreBoard extends React.Component {
     }
 }
 
-class GameState {
-    paused: boolean = false;
-    gameover: boolean = false;
-    score: number = 0;
-    snakeDirection: string = '>';
-    snakeHeadPosition: number[] = [boardHeight / 2, 3];
-    snakeBody: number[][] = [];
-    foodPosition: number[] = [boardHeight / 2, boardWidth / 2];
-    snakeLength: number = 1;
-    gameTickInterval: number = 110;
-}
-
 export default class SnakeGame extends React.Component {
 
-    gameTickDelta: number = 0;
-    snakeLengthDelta: number = 3;
-    scoreDelta: number = 5;
     currentDirection: string;
     interval: any;
-    state: GameState;
+    state: SnakeState;
 
     constructor(props: any) {
         super(props);
         Utility.setTitle('Snake');
-        const tempState = new GameState();
-        this.state = tempState;
+        this.state = initialSnakeState();
         this.currentDirection = this.state.snakeDirection;
-        this.setState(tempState);
         this.interval = setInterval(() => this.gameTick(), this.state.gameTickInterval);
     }
 
     gameTick() {
-        this.setState((state: GameState) => {
-            if (!state.paused && !state.gameover) {
-                // move snake in direction set by keyDown method
-                const dir = state.snakeDirection;
-                this.currentDirection = dir;
-                let [y, x] = state.snakeHeadPosition;
-                state.snakeBody.push([y, x]);
-                x = dir === '<' ? x - 1 : dir === '>' ? x + 1 : x;
-                y = dir === '^' ? y - 1 : dir === 'v' ? y + 1 : y;
-                // check for collisions and set new positions
-                if (y < 0 || y > boardHeight - 1 || x < 0 || x > boardWidth - 1) {
-                    state.gameover = true;
-                } else {
-                    state.snakeHeadPosition = [y, x];
-                    state.snakeBody = Utility.array(state.snakeBody.length, [-1, -1]).concat(state.snakeBody);
-                    state.snakeBody = state.snakeBody.slice(state.snakeBody.length - state.snakeLength);
-                    state.snakeBody.forEach((bodyPart, i) => {
-                        if (Utility.arePositionsEqual(bodyPart, state.snakeHeadPosition)) state.gameover = true;
-                    });
-                }
-                if (state.gameover) {
-                    const hs = localStorage.getItem('nate314.snake.highScore');
-                    let newHighScore = true;
-                    if (hs && Number(hs) > state.score) newHighScore = false;
-                    if (newHighScore) {
-                        localStorage.setItem('nate314.snake.highScore', JSON.stringify(state.score));
-                    }
+        this.setState((state: SnakeState) => {
+            if (state.paused || state.gameover) return state;
+            // move snake in direction set by keyDown method
+            this.currentDirection = state.snakeDirection;
+            const next = stepSnake(state);
+            if (next.gameover) {
+                const hs = localStorage.getItem('nate314.snake.highScore');
+                let newHighScore = true;
+                if (hs && Number(hs) > next.score) newHighScore = false;
+                if (newHighScore) {
+                    localStorage.setItem('nate314.snake.highScore', JSON.stringify(next.score));
                 }
             }
-            return state;
+            return next;
         });
     }
 
     keyDown = (e: any) => {
-        this.setState((state: GameState) => {
+        this.setState((state: SnakeState) => {
             const k = e.key;
-            // set the direction based on the key pressed
-            state.snakeDirection =
-                !['^', 'v'].includes(this.currentDirection) ?
-                    ((k === 'ArrowUp' || k === 'W' || k === 'w') ? '^' :
-                    (k === 'ArrowDown' || k === 'S' || k === 's') ? 'v' : this.currentDirection) :
-                !['<', '>'].includes(this.currentDirection) ?
-                    ((k === 'ArrowLeft' || k === 'A' || k === 'a') ? '<' :
-                    (k === 'ArrowRight' || k === 'D' || k === 'd') ? '>' : this.currentDirection)
-                : this.currentDirection;
-            if (k === 'Escape') state.paused = !state.paused;
+            let next = { ...state, snakeDirection: nextDirection(this.currentDirection, k) };
+            if (k === 'Escape') next.paused = !next.paused;
             if (['r', 'R'].includes(k)) {
                 clearInterval(this.interval);
-                state = new GameState();
-                this.interval = setInterval(() => this.gameTick(), state.gameTickInterval);
+                next = initialSnakeState();
+                this.interval = setInterval(() => this.gameTick(), next.gameTickInterval);
             }
-            return state;
+            return next;
         });
     }
 
@@ -210,22 +169,11 @@ export default class SnakeGame extends React.Component {
     }
 
     eatFood() {
-        this.setState((state: GameState) => {
-            // move food and increment the snake's length
-            while (true) {
-                state.foodPosition = randomPosition();
-                let isFoodInBody = false;
-                state.snakeBody.forEach(bodyPart => {
-                    if (Utility.arePositionsEqual(state.foodPosition, bodyPart)) isFoodInBody = true;
-                });
-                if (!isFoodInBody) break;
-            }
-            state.snakeLength += this.snakeLengthDelta;
-            state.score += this.scoreDelta;
-            state.gameTickInterval -= this.gameTickDelta;
+        this.setState((state: SnakeState) => {
+            const next = applyEatFood(state, Math.random);
             clearInterval(this.interval);
-            this.interval = setInterval(() => this.gameTick(), state.gameTickInterval);
-            return state;
+            this.interval = setInterval(() => this.gameTick(), next.gameTickInterval);
+            return next;
         });
     }
 
