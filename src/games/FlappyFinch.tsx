@@ -75,9 +75,9 @@ class Pipe extends React.Component {
         return (
             <div>
                 {this.nomNomEaten ? '' : <NomNom x={this.nomNomProps.x} y={this.nomNomProps.y}/>}
-                <img className="pipe" src="assets/flappyfinch/pipe.png" style={{ transform:'scale(-1, -1)',
+                <img alt="" className="pipe" src="assets/flappyfinch/pipe.png" style={{ transform:'scale(-1, -1)',
                     top:`${topPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></img>
-                <img className="pipe" src="assets/flappyfinch/pipe.png" style={{ transform:'scale(-1, 1)',
+                <img alt="" className="pipe" src="assets/flappyfinch/pipe.png" style={{ transform:'scale(-1, 1)',
                     top:`${bottomPipeTop}px`, left:`${this.props.x}px`, width:`${pipeWidth}px`}}></img>
             </div>
         )
@@ -95,7 +95,7 @@ class Bird extends React.Component {
 
     render() {
         return (
-            <img className="bird" src="assets/flappyfinch/bird.png"
+            <img alt="" className="bird" src="assets/flappyfinch/bird.png"
                 style={{left:`${this.props.x}px`, top:`${this.props.y}px`,
                         width:`${birdSize}px`, height:`${birdSize}px`}}></img>
         )
@@ -196,13 +196,13 @@ export default class FlappyFinchGame extends React.Component {
         const gamestatus = (this.state.paused || this.state.gameover || this.state.collision) ?
             <div className="paused">{this.state.gameover ? 'GAME OVER' : 'PAUSED'}</div> : '';
         const ground = Utility.array(5).map((v, i) =>
-            <img key={`background${i}`}
+            <img alt="" key={`background${i}`}
                 className="ground" src="assets/flappyfinch/ground.png"
                 style={{top:`${height - 50}px`, left:`${this.state.groundX + (i * width * 0.625)}px`, height:'50px',
                 color:'white', textAlign:'left', fontSize:'20px'}}></img>
         );
         const background = Utility.array(5).map((v, i) =>
-            <img key={`background${i}`}
+            <img alt="" key={`background${i}`}
                 className="background" src="assets/flappyfinch/sky58.png"
                 style={{left: `${10 + this.state.skyX + (i * width * 0.5)}px`}}></img>
         );
