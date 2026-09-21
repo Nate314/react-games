@@ -1,3 +1,5 @@
+import type { StageSize } from '../stage';
+
 export const numberOfStars = 100;
 export const starSize = 10;
 export const maxSpeed = 1;
@@ -28,3 +30,11 @@ export const moveStars = (locations: number[][], velocities: number[][], width: 
 
 export const visibleStars = (locations: number[][], width: number, height: number): number[][] =>
     locations.filter(star => (star[0] < width && star[0] > 0) && (star[1] < height && star[1] > 0));
+
+export const rescaleStars = (locations: number[][], from: StageSize, to: StageSize): number[][] => {
+    const same = from.width === to.width && from.height === to.height;
+    if (same || from.width === 0 || from.height === 0) return locations.map(([x, y]) => [x, y]);
+    const rx = to.width / from.width;
+    const ry = to.height / from.height;
+    return locations.map(([x, y]) => [x * rx, y * ry]);
+};

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createStars, moveStars, numberOfStars, starSize, visibleStars } from './FloatyStars.logic';
+import { createStars, moveStars, numberOfStars, rescaleStars, starSize, visibleStars } from './FloatyStars.logic';
 
 describe('createStars', () => {
     it('makes numberOfStars stars, drawing location then velocity per star', () => {
@@ -33,5 +33,25 @@ describe('moveStars', () => {
 describe('visibleStars', () => {
     it('keeps only stars strictly inside the window', () => {
         expect(visibleStars([[5, 5], [0, 5], [5, 100], [101, 5], [50, 50]], 100, 100)).toEqual([[5, 5], [50, 50]]);
+    });
+});
+
+describe('rescaleStars', () => {
+    const a = { width: 100, height: 50 };
+    it('scales x by width ratio and y by height ratio', () => {
+        expect(rescaleStars([[10, 10], [50, 25]], a, { width: 200, height: 150 })).toEqual([[20, 30], [100, 75]]);
+    });
+    it('returns a new array and does not mutate input', () => {
+        const loc = [[10, 10]];
+        const out = rescaleStars(loc, a, { width: 200, height: 100 });
+        expect(out).not.toBe(loc);
+        expect(loc).toEqual([[10, 10]]);
+    });
+    it('is identity when sizes are equal', () => {
+        expect(rescaleStars([[10, 10]], a, { ...a })).toEqual([[10, 10]]);
+    });
+    it('is identity when from has a zero dimension', () => {
+        expect(rescaleStars([[10, 10]], { width: 0, height: 50 }, a)).toEqual([[10, 10]]);
+        expect(rescaleStars([[10, 10]], { width: 100, height: 0 }, a)).toEqual([[10, 10]]);
     });
 });
