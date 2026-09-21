@@ -89,9 +89,8 @@ export default class GameOfLife extends React.Component {
         super(props);
         Utility.setTitle('Game of Life');
         const tempState = new GameState();
-        tempState.squares = createSquares(boardWidth, boardHeight);
+        tempState.squares = randomizeSquares(createSquares(boardWidth, boardHeight), Math.random);
         this.state = tempState;
-        this.keyDown('r');
         this.interval = setInterval(() => this.gameTick(), this.state.gameTickInterval);
     }
 

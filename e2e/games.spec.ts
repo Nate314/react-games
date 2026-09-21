@@ -60,6 +60,7 @@ test('flappyfinch: loads clean, flaps, pauses and resets', async ({ page }) => {
 test('gameoflife: loads clean, toggles cells and fills the board', async ({ page }) => {
     const errors = await open(page, 'gameoflife');
     const sel = '.gameoflifesquare[style*="background-color"]';
+    expect(await colors(page, sel)).toContain('green'); // starts on a random board, not a blank one
     await page.keyboard.press('Escape'); // pause so generations do not change the board
     await page.keyboard.press('c');
     const cleared = await colors(page, sel);
