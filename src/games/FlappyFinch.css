@@ -2,19 +2,19 @@
     position: absolute;
     left: -10px;
     top: 0;
-    height: 100vh;
-    width: calc(100vw + 10px);
+    height: 100%;
+    width: calc(100% + 10px);
     overflow-x: hidden;
     overflow-y: hidden;
 }
 
 .background {
     position: absolute;
-    background-size: 50vw 100vh;
+    background-size: 100% 100%;
     left: 0;
     top: 0;
-    height: 100vh;
-    width: 50vw;
+    height: 100%;
+    width: 50%;
 }
 
 .bird {
@@ -36,8 +36,8 @@
 
 .ground {
     position: absolute;
-    background-size: 62.5vw 100px;
-    width: 62.5vw;
+    background-size: 100% 100%;
+    width: 62.5%;
 }
 
 .pipe {

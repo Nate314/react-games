@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
     BirdProps, FlappyFinchGameState, PipeProps, birdSize, colliding, createPipes, flap, flapVelocity,
-    gravityConstant, incrementScore, pipeWidth, pipeXGap, pipeYGap, randomPipePosition, step
+    gravityConstant, incrementScore, pipeWidth, pipeXGap, pipeYGap, randomPipePosition, rescale, step
 } from './FlappyFinch.logic';
 
 const W = 1000;
@@ -125,5 +125,32 @@ describe('FlappyFinch logic', () => {
         const recycled = s.pipePositions[0];
         expect(recycled.index).toBe(4);
         expect(recycled.x).toBe(800 + pipeXGap - 1);
+    });
+});
+
+describe('rescale', () => {
+    const build = () => {
+        const s = new FlappyFinchGameState();
+        s.birdPosition = new BirdProps(120, 200);
+        s.pipePositions = [new PipeProps(500, 400, 1), new PipeProps(800, 300, 2)];
+        return s;
+    };
+    it('scales bird y and pipe y by the height ratio and leaves x alone', () => {
+        const s = build();
+        rescale(s, { width: 1000, height: 800 }, { width: 500, height: 400 });
+        expect(s.birdPosition).toMatchObject({ x: 120, y: 100 });
+        expect(s.pipePositions.map(p => [p.x, p.y])).toEqual([[500, 200], [800, 150]]);
+    });
+    it('is a no-op when the sizes are equal', () => {
+        const s = build();
+        rescale(s, { width: 1000, height: 800 }, { width: 1000, height: 800 });
+        expect(s.birdPosition.y).toBe(200);
+        expect(s.pipePositions[0].y).toBe(400);
+    });
+    it('is a no-op when the previous height is 0', () => {
+        const s = build();
+        rescale(s, { width: 1000, height: 0 }, { width: 1000, height: 800 });
+        expect(s.birdPosition.y).toBe(200);
+        expect(s.pipePositions[1].y).toBe(300);
     });
 });

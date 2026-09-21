@@ -1,4 +1,5 @@
 import { Utility } from '../Utility';
+import type { StageSize } from '../stage';
 
 export const frameInterval = 10;
 export const pipeXGap = 300;
@@ -24,6 +25,7 @@ export class PipeProps {
     index: number = 0;
     birdPosition: BirdProps = new BirdProps(0, 0);
     onNomNom: any;
+    stageHeight: number = 0;
     constructor(x: number, y: number, index: number) {
         this.x = x;
         this.y = y;
@@ -87,6 +89,14 @@ export const createPipes = (height: number, rng: () => number): PipeProps[] => {
         x += pipeXGap;
         return pipe;
     });
+};
+
+// keeps the bird and pipes at the same relative height when the stage changes size
+export const rescale = (state: FlappyFinchGameState, from: StageSize, to: StageSize): void => {
+    if (from.height === 0 || from.height === to.height) return;
+    const ratio = to.height / from.height;
+    state.birdPosition.y *= ratio;
+    state.pipePositions.forEach(pipe => { pipe.y *= ratio; });
 };
 
 export const incrementScore = (state: FlappyFinchGameState): void => {

@@ -3,9 +3,10 @@ import './FlappyFinch.css';
 import Music from '../Music';
 import { GameHud } from '../components/GameHud';
 import { Utility } from '../Utility';
+import type { GameProps, StageSize } from '../stage';
 import {
     BirdProps, PipeProps, FlappyFinchGameState, frameInterval, pipeWidth, pipeYGap, birdSize,
-    nomNomSize, colliding, createPipes, incrementScore, flap, step
+    nomNomSize, colliding, createPipes, incrementScore, flap, rescale, step
 } from './FlappyFinch.logic';
 
 const mp3DingUrl = 'https://freesound.org/data/previews/341/341695_5858296-lq.mp3';
@@ -53,7 +54,7 @@ class Pipe extends React.Component {
     }
 
     render() {
-        const height = window.innerHeight;
+        const height = this.props.stageHeight;
         const halfGap = pipeYGap / 2;
         const topPipeTop = (this.props.y - height) - halfGap;
         const bottomPipeTop = this.props.y + halfGap;
@@ -103,14 +104,14 @@ class Bird extends React.Component {
     };
 }
 
-export default class FlappyFinchGame extends React.Component {
+export default class FlappyFinchGame extends React.Component<GameProps> {
     state: FlappyFinchGameState;
-    props: any;
+    lastStage: StageSize;
 
-    constructor(props: any) {
+    constructor(props: GameProps) {
         super(props);
         Utility.setTitle('FlappyFinch');
-        this.props = props;
+        this.lastStage = props.stage;
         this.state = new FlappyFinchGameState();
         this.resetState();
         setInterval(() => {
@@ -132,7 +133,7 @@ export default class FlappyFinchGame extends React.Component {
             localStorage.setItem(highScoreKey, JSON.stringify(0));
         }
         this.state.highscore = lshs ? Number(lshs) : 0;
-        this.state.pipePositions = createPipes(window.innerHeight, Math.random);
+        this.state.pipePositions = createPipes(this.props.stage.height, Math.random);
     }
 
     keyDown = (e: any | ' ' | 'Escape' | 'r') => {
@@ -154,6 +155,14 @@ export default class FlappyFinchGame extends React.Component {
         });
     }
 
+    // re-lays out the running game when the stage size changes, without resetting it
+    applyStage() {
+        if (this.lastStage !== this.props.stage) {
+            rescale(this.state, this.lastStage, this.props.stage);
+            this.lastStage = this.props.stage;
+        }
+    }
+
     componentDidMount() {
         document.addEventListener("keydown", this.keyDown);
     }
@@ -167,8 +176,7 @@ export default class FlappyFinchGame extends React.Component {
     }
 
     animate() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        const { width, height } = this.props.stage;
         this.setState((state: FlappyFinchGameState) => {
             step(state, width, height, Math.random);
             this.persistHighScore();
@@ -187,10 +195,10 @@ export default class FlappyFinchGame extends React.Component {
         const flap = this.state.flapWhenOdd;
         this.state.shouldDing = false
         this.state.flapWhenOdd += Utility.isOdd(this.state.flapWhenOdd) ? 1 : 0;
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        this.applyStage();
+        const { width, height } = this.props.stage;
         const pipes = this.state.pipePositions.map((pipe, i) => 
-            <Pipe key={`pipe${i}`}
+            <Pipe key={`pipe${i}-${height}`} stageHeight={height}
                 x={pipe.x} y={pipe.y} index={pipe.index}
                 birdPosition={this.state.birdPosition} onNomNom={() => this.nomNomEaten()}/>
         );
