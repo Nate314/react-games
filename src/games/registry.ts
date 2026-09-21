@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import type { GameProps } from '../stage';
 import Snake from './Snake';
 import FloatyStars from './FloatyStars';
 import FlappyFinch from './FlappyFinch';
@@ -10,9 +11,7 @@ export interface GameEntry {
     title: string;
     description: string;
     image: string;
-    // Games not yet migrated to `stage` are typed loosely; they receive it as a prop regardless.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    component: ComponentType<any>;
+    component: ComponentType<GameProps>;
 }
 
 // Single source for menu cards and routes (route path is `/${id}`).
