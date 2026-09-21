@@ -20,10 +20,10 @@ test('menu has no horizontal overflow and every play control fits the width', as
 
 // A control or status text that must be visible on each game (FloatyStars has none).
 const controls: Record<string, string | undefined> = {
-    snake: 'Score: 0',
-    flappyfinch: '(r) Reset',
-    gameoflife: 'Play/Pause',
-    tetris: 'Play/Pause'
+    snake: 'Move',
+    flappyfinch: 'Flap',
+    gameoflife: 'Play / Pause',
+    tetris: 'Play / Pause'
 };
 
 for (const game of games) {

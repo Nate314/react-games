@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { trackErrors } from './support';
+import { hud, trackErrors } from './support';
 
 // Timing is driven by page.clock so games advance deterministically.
 async function open(page: Page, id: string) {
@@ -15,7 +15,7 @@ const colors = (page: Page, selector: string) =>
 
 test('snake: loads clean, accepts keys, pauses and resets', async ({ page }) => {
     const errors = await open(page, 'snake');
-    await expect(page.getByText('Score: 0', { exact: true })).toBeVisible();
+    await expect(hud(page)).toContainText(/Score\s*0/);
     const before = await colors(page, '.snakesquare');
     await page.keyboard.press('ArrowDown');
     await page.clock.runFor(1500);
@@ -25,7 +25,7 @@ test('snake: loads clean, accepts keys, pauses and resets', async ({ page }) => 
     await page.keyboard.press('Escape');
     await expect(page.getByText('Paused')).toBeHidden();
     await page.keyboard.press('r');
-    await expect(page.getByText('Score: 0', { exact: true })).toBeVisible();
+    await expect(hud(page)).toContainText(/Score\s*0/);
     expect(errors).toEqual([]);
 });
 
@@ -42,7 +42,7 @@ test('floatystars: loads clean and the stars move', async ({ page }) => {
 
 test('flappyfinch: loads clean, flaps, pauses and resets', async ({ page }) => {
     const errors = await open(page, 'flappyfinch');
-    await expect(page.getByText('Score:').first()).toBeVisible();
+    await expect(hud(page)).toContainText(/Score\s*0/);
     const bird = page.locator('.bird');
     await page.clock.runFor(500);
     const before = await bird.evaluate(e => (e as HTMLElement).style.top);
@@ -62,7 +62,7 @@ test('gameoflife: loads clean, toggles cells and fills the board', async ({ page
     const sel = '.gameoflifesquare[style*="background-color"]';
     expect(await colors(page, sel)).toContain('green'); // starts on a random board, not a blank one
     await page.keyboard.press('Escape'); // pause so generations do not change the board
-    await page.keyboard.press('c');
+    await hud(page).getByRole('button', { name: /Clear all/ }).click(); // the HUD control, not the key
     const cleared = await colors(page, sel);
     await page.locator(sel).first().click();
     expect(await colors(page, sel)).not.toBe(cleared);
@@ -75,7 +75,7 @@ test('gameoflife: loads clean, toggles cells and fills the board', async ({ page
 test('tetris: loads clean, pieces fall and move with the keyboard', async ({ page }) => {
     const errors = await open(page, 'tetris');
     const sel = '.gameoflifesquare[style*="background-color"]';
-    await expect(page.getByText('Score: 0', { exact: true })).toBeVisible();
+    await expect(hud(page)).toContainText(/Score\s*0/);
     const start = await colors(page, sel);
     await page.clock.runFor(1000); // first piece spawns on a tick
     const spawned = await colors(page, sel);

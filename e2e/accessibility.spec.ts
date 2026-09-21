@@ -11,10 +11,15 @@ async function seriousViolations(page: Page) {
 
 const pages = [{ name: 'menu', path: '/' }, ...games.map(g => ({ name: g.title, path: `/${g.id}` }))];
 
-for (const { name, path } of pages) {
-    test(`${name} has no serious or critical axe violations`, async ({ page }) => {
-        await page.clock.install();
-        await page.goto(path);
-        expect(await seriousViolations(page)).toEqual([]);
+for (const scheme of ['light', 'dark'] as const) {
+    test.describe(`${scheme} theme`, () => {
+        test.use({ colorScheme: scheme });
+        for (const { name, path } of pages) {
+            test(`${name} has no serious or critical axe violations`, async ({ page }) => {
+                await page.clock.install();
+                await page.goto(path);
+                expect(await seriousViolations(page)).toEqual([]);
+            });
+        }
     });
 }

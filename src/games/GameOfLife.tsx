@@ -2,6 +2,7 @@ import React from 'react';
 import './GameOfLife.css';
 import { Utility } from '../Utility';
 import { GameHud } from '../components/GameHud';
+import { fitSquareSize } from './boardSize';
 import {
     createSquares, nextGeneration, randomizeSquares, setAllSquares, toggleSquare, type Square
 } from './GameOfLife.logic';
@@ -44,9 +45,7 @@ class Board extends React.Component {
             })
         );
         // calculating square size
-        const maxWidth = Math.floor((window.innerWidth - 100) / boardWidth);
-        const maxHeight = Math.floor((window.innerHeight - 100) / boardHeight);
-        squareSize = Math.min(maxWidth, maxHeight);
+        squareSize = fitSquareSize(boardWidth, boardHeight);
         // return rendered board
         return (
             <div>

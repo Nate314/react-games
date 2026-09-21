@@ -2,6 +2,7 @@ import React from 'react';
 import './Tetris.css';
 import { Utility } from '../Utility';
 import { GameHud } from '../components/GameHud';
+import { fitSquareSize } from './boardSize';
 import {
     Square, GameState, boardWidth, boardHeight, createBoard, tick, movePiece, rotatePiece
 } from './Tetris.logic';
@@ -38,9 +39,7 @@ class Board extends React.Component {
             })
         );
         // calculating square size
-        const maxWidth = Math.floor((window.innerWidth - 100) / boardWidth);
-        const maxHeight = Math.floor((window.innerHeight - 100) / boardHeight);
-        squareSize = Math.min(maxWidth, maxHeight);
+        squareSize = fitSquareSize(boardWidth, boardHeight);
         // return rendered board
         return (
             <div>

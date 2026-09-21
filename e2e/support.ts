@@ -2,6 +2,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Page } from '@playwright/test';
 
+// The shared score/controls panel every game with a score or controls renders.
+export const hud = (page: Page) => page.getByRole('group', { name: 'Game status and controls' });
+
 // Collects console errors and uncaught page errors.
 export function trackErrors(page: Page): string[] {
     const errors: string[] = [];
