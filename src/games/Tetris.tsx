@@ -1,6 +1,7 @@
 import React from 'react';
 import './Tetris.css';
 import { Utility } from '../Utility';
+import { GameHud } from '../components/GameHud';
 import {
     Square, GameState, boardWidth, boardHeight, createBoard, tick, movePiece, rotatePiece
 } from './Tetris.logic';
@@ -110,27 +111,16 @@ export default class Tetris extends React.Component {
         return (
             <div>
                 <Board squares={this.state.squares} />
-                <div className="board-row">
-                    <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
-                    {
-                        [
-                            {'key': 'Escape', 'action': 'Play/Pause'},
-                            {'key': 'WASD/Arrow Keys', 'action': 'Move'},
-                            {'key': ',', 'action': 'Rotate Counter Clockwise'},
-                            {'key': '.', 'action': 'Rotate Clockwise'}
-                        ].map((instruction, i) =>
-                            <span key={instruction.key} style={{cursor:'pointer'}} onClick={() => this.keyDown(instruction.key)}>
-                                ({instruction.key}) {instruction.action} {i < 4 ? '| ' : ''}
-                            </span>
-                        )
-                    }
-                    </div>
-                </div>
-                <div className="board-row">
-                    <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
-                        Score: { this.state.score }
-                    </div>
-                </div>
+                <GameHud
+                    width={boardWidth * squareSize}
+                    stats={[{ label: 'Score', value: this.state.score }]}
+                    controls={[
+                        { keys: 'Esc', action: 'Play / Pause', onSelect: () => this.keyDown('Escape') },
+                        { keys: 'WASD / Arrows', action: 'Move' },
+                        { keys: ',', action: 'Rotate left', onSelect: () => this.keyDown(',') },
+                        { keys: '.', action: 'Rotate right', onSelect: () => this.keyDown('.') }
+                    ]}
+                />
             </div>
         );
     }
