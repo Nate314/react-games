@@ -46,8 +46,4 @@ describe('GameHud', () => {
         expect(container.querySelector('.hud--overlay')).not.toBeNull();
     });
 
-    it('sizes the panel to the board when a width is given', () => {
-        const { container } = render(<GameHud controls={controls} width={420} />);
-        expect((container.firstChild as HTMLElement).style.width).toBe('420px');
-    });
 });

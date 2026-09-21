@@ -12,8 +12,6 @@ interface GameHudProps {
     status?: HudStatus | null;
     footer?: ReactNode;
     variant?: 'panel' | 'overlay';
-    // Pixel width of the board this panel sits under.
-    width?: number;
 }
 
 function Control({ keys, action, onSelect }: HudControl) {
@@ -23,13 +21,12 @@ function Control({ keys, action, onSelect }: HudControl) {
         : <span className="hud__control">{content}</span>;
 }
 
-export function GameHud({ controls, stats = [], status = null, footer, variant = 'panel', width }: GameHudProps) {
+export function GameHud({ controls, stats = [], status = null, footer, variant = 'panel' }: GameHudProps) {
     return (
         <section
             className={`hud hud--${variant}`}
             role="group"
             aria-label="Game status and controls"
-            style={width === undefined ? undefined : { width: `${width}px` }}
         >
             {(stats.length > 0 || status) && (
                 <div className="hud__row">

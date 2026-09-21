@@ -2,6 +2,7 @@ import React from 'react';
 import './GameOfLife.css';
 import { Utility } from '../Utility';
 import { GameHud } from '../components/GameHud';
+import { BoardColumn } from '../components/BoardColumn';
 import { fitSquareSize } from './boardSize';
 import type { GameProps } from '../stage';
 import {
@@ -143,13 +144,12 @@ export default class GameOfLife extends React.Component<GameProps> {
         const squareSize = fitSquareSize(boardWidth, boardHeight, this.props.stage);
         // show board and scoreboard on the screen
         return (
-            <div>
+            <BoardColumn boardWidth={boardWidth * squareSize}>
                 <Board
                     squareSize={squareSize}
                     squares={this.state.squares}
                     clicked={(rowindex: number, columnindex: number) => this.clicked(rowindex, columnindex)}/>
                 <GameHud
-                    width={boardWidth * squareSize}
                     controls={[
                         { keys: 'Esc', action: 'Play / Pause', onSelect: () => this.keyDown('Escape') },
                         { keys: 'R', action: 'Random', onSelect: () => this.keyDown('r') },
@@ -159,7 +159,7 @@ export default class GameOfLife extends React.Component<GameProps> {
                     ]}
                     footer={<>Learn more on <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Wikipedia</a></>}
                 />
-            </div>
+            </BoardColumn>
         );
     }
 }

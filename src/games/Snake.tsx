@@ -2,6 +2,7 @@ import React from 'react';
 import './Snake.css';
 import { Utility } from '../Utility';
 import { GameHud } from '../components/GameHud';
+import { BoardColumn } from '../components/BoardColumn';
 import { fitSquareSize } from './boardSize';
 import type { GameProps } from '../stage';
 import {
@@ -138,7 +139,7 @@ export default class SnakeGame extends React.Component<GameProps> {
         highscore = isNaN(highscore) ? 0 : highscore;
         // show board and HUD on the screen
         return (
-            <div>
+            <BoardColumn boardWidth={boardWidth * squareSize}>
                 <Board
                     squareSize={squareSize}
                     snakeBody={this.state.snakeBody}
@@ -146,7 +147,6 @@ export default class SnakeGame extends React.Component<GameProps> {
                     food={this.state.foodPosition}
                 />
                 <GameHud
-                    width={boardWidth * squareSize}
                     stats={[
                         { label: 'Score', value: this.state.score },
                         { label: 'High Score', value: highscore },
@@ -162,7 +162,7 @@ export default class SnakeGame extends React.Component<GameProps> {
                         { keys: 'Esc', action: 'Pause' },
                     ]}
                 />
-            </div>
+            </BoardColumn>
         );
     }
 }

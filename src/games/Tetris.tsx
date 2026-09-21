@@ -2,6 +2,7 @@ import React from 'react';
 import './Tetris.css';
 import { Utility } from '../Utility';
 import { GameHud } from '../components/GameHud';
+import { BoardColumn } from '../components/BoardColumn';
 import { fitSquareSize } from './boardSize';
 import type { GameProps } from '../stage';
 import {
@@ -109,10 +110,9 @@ export default class Tetris extends React.Component<GameProps> {
         const squareSize = fitSquareSize(boardWidth, boardHeight, this.props.stage);
         // show board and scoreboard on the screen
         return (
-            <div>
+            <BoardColumn boardWidth={boardWidth * squareSize}>
                 <Board squares={this.state.squares} squareSize={squareSize} />
                 <GameHud
-                    width={boardWidth * squareSize}
                     stats={[{ label: 'Score', value: this.state.score }]}
                     controls={[
                         { keys: 'Esc', action: 'Play / Pause', onSelect: () => this.keyDown('Escape') },
@@ -121,7 +121,7 @@ export default class Tetris extends React.Component<GameProps> {
                         { keys: '.', action: 'Rotate right', onSelect: () => this.keyDown('.') }
                     ]}
                 />
-            </div>
+            </BoardColumn>
         );
     }
 }
