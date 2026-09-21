@@ -1,0 +1,13 @@
+node_modules
+docs
+.git
+.vscode
+.idea
+*.md
+plans
+specs
+e2e
+coverage
+playwright-report
+test-results
+.env
