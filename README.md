@@ -2,6 +2,8 @@
 
 A small static site of five browser games built with React 19, TypeScript and Vite: Flappy Finch, Floaty Stars, Game of Life, Snake and Tetris. It is served with GitHub Pages from the `docs/` folder.
 
+The menu follows your system light or dark setting, and the button at the top right switches it. The choice is saved in your browser only after you use the button. The game screens keep their own colors.
+
 ## Quick start
 
 With Docker (no local Node install needed):
