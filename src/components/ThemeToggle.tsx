@@ -7,6 +7,7 @@ export function ThemeToggle() {
         return applied === 'light' || applied === 'dark' ? applied : initialTheme();
     });
     const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    const label = `Switch to ${next} mode`;
 
     const toggle = () => {
         applyTheme(next);
@@ -15,8 +16,8 @@ export function ThemeToggle() {
     };
 
     return (
-        <button type="button" className="theme-toggle" aria-label={`Switch to ${next} mode`} onClick={toggle}>
-            <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span> {next === 'light' ? 'Light' : 'Dark'}
+        <button type="button" className="theme-toggle" aria-label={label} title={label} onClick={toggle}>
+            {theme === 'dark' ? '☀️' : '🌙'}
         </button>
     );
 }
