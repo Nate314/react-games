@@ -87,3 +87,18 @@ test('tetris: loads clean, pieces fall and move with the keyboard', async ({ pag
     expect(await colors(page, sel)).not.toBe(moved);
     expect(errors).toEqual([]);
 });
+
+for (const id of ['gameoflife', 'tetris']) {
+    test(`${id}: pausing shows a Paused badge in the HUD`, async ({ page }) => {
+        await page.clock.install();
+        await page.goto(`/${id}`);
+        const badge = hud(page).getByRole('status');
+        await expect(badge).toHaveCount(0);
+        await page.keyboard.press('Escape');
+        await expect(badge).toHaveText('Paused');
+        await page.keyboard.press('Escape');
+        await expect(badge).toHaveCount(0);
+        await hud(page).getByRole('button', { name: /Play \/ Pause/ }).click(); // the HUD control pauses too
+        await expect(badge).toHaveText('Paused');
+    });
+}

@@ -87,7 +87,7 @@ export default class Tetris extends React.Component<GameProps> {
         const k = e && e.key ? e.key : e;
         const inc = (arr: string[]) => arr.includes(k);
         if (inc(['Escape', 'Enter'])) {
-            this.state.paused = !this.state.paused;
+            this.setState((state: GameState) => ({ paused: !state.paused }));
         } else if (inc(['w', 'W', 'ArrowUp'])) {
         } else if (inc(['s', 'S', 'ArrowDown'])) {
             this.gameTick();
@@ -113,6 +113,7 @@ export default class Tetris extends React.Component<GameProps> {
             <BoardColumn boardWidth={boardWidth * squareSize}>
                 <Board squares={this.state.squares} squareSize={squareSize} />
                 <GameHud
+                    status={this.state.paused ? { text: 'Paused', tone: 'info' } : null}
                     stats={[{ label: 'Score', value: this.state.score }]}
                     controls={[
                         { keys: 'Esc', action: 'Play / Pause', onSelect: () => this.keyDown('Escape') },

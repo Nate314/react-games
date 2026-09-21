@@ -109,7 +109,7 @@ export default class GameOfLife extends React.Component<GameProps> {
         const k = e && e.key ? e.key : e;
         switch (k) {
             case 'Escape':
-                this.state.paused = !this.state.paused;
+                this.setState((state: GameState) => ({ paused: !state.paused }));
                 break;
             case 'r':
             case 'R':
@@ -150,6 +150,7 @@ export default class GameOfLife extends React.Component<GameProps> {
                     squares={this.state.squares}
                     clicked={(rowindex: number, columnindex: number) => this.clicked(rowindex, columnindex)}/>
                 <GameHud
+                    status={this.state.paused ? { text: 'Paused', tone: 'info' } : null}
                     controls={[
                         { keys: 'Esc', action: 'Play / Pause', onSelect: () => this.keyDown('Escape') },
                         { keys: 'R', action: 'Random', onSelect: () => this.keyDown('r') },
