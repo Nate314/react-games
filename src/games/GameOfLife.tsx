@@ -1,6 +1,7 @@
 import React from 'react';
 import './GameOfLife.css';
 import { Utility } from '../Utility';
+import { GameHud } from '../components/GameHud';
 import {
     createSquares, nextGeneration, randomizeSquares, setAllSquares, toggleSquare, type Square
 } from './GameOfLife.logic';
@@ -146,25 +147,17 @@ export default class GameOfLife extends React.Component {
                 <Board
                     squares={this.state.squares}
                     clicked={(rowindex: number, columnindex: number) => this.clicked(rowindex, columnindex)}/>
-                <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
-                {
-                    [
-                        {'key': 'Escape', 'action': 'Play/Pause'},
-                        {'key': 'r', 'action': 'Random'},
-                        {'key': 'c', 'action': 'Clear All'},
-                        {'key': 'a', 'action': 'Fill All'},
-                        {'key': 'Space', 'action': 'next generation'}
-                    ].map((instruction, i) =>
-                        <span key={instruction.key} style={{cursor:'pointer'}} onClick={() => this.keyDown(instruction.key)}>
-                            ({instruction.key}) {instruction.action} {i < 4 ? '| ' : ''}
-                        </span>
-                    )
-                }
-                </div>
-                <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
-                    Learn more on&nbsp;
-                    <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">wikipedia</a>
-                </div>
+                <GameHud
+                    width={boardWidth * squareSize}
+                    controls={[
+                        { keys: 'Esc', action: 'Play / Pause', onSelect: () => this.keyDown('Escape') },
+                        { keys: 'R', action: 'Random', onSelect: () => this.keyDown('r') },
+                        { keys: 'C', action: 'Clear all', onSelect: () => this.keyDown('c') },
+                        { keys: 'A', action: 'Fill all', onSelect: () => this.keyDown('a') },
+                        { keys: 'Space', action: 'Next generation', onSelect: () => this.keyDown('Space') }
+                    ]}
+                    footer={<>Learn more on <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Wikipedia</a></>}
+                />
             </div>
         );
     }
