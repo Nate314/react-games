@@ -1,0 +1,54 @@
+* { box-sizing: border-box; }
+
+/* Only menu and 404 pages are themed (via .page); game screens keep their own colors. */
+body { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
+.page { min-height: 100vh; background: var(--bg); color: var(--text); }
+.page__content { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+.panel p { margin: 0 0 8px; line-height: 1.5; }
+.panel p:last-child { margin-bottom: 0; }
+
+a { color: var(--accent); }
+
+.game-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+.game-card__image { height: 150px; background-size: cover; background-position: center; }
+.game-card__body { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 16px; }
+.game-card__body h2 { margin: 0; font-size: 1.25rem; }
+.game-card__body p { margin: 0; color: var(--muted); flex: 1; }
+
+.button {
+    align-self: flex-end;
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+    text-decoration: none;
+}
+.button:hover { filter: brightness(1.1); }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
