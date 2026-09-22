@@ -6,7 +6,6 @@ docs
 *.md
 plans
 specs
-e2e
 coverage
 playwright-report
 test-results

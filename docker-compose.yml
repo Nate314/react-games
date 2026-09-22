@@ -18,3 +18,19 @@ services:
       interval: 30s
       timeout: 3s
       retries: 3
+
+  # Runs the e2e suite against `web`, with no local Node/Playwright install needed.
+  # Opt-in (profile "test"): `docker compose --profile test run --rm --build e2e`.
+  e2e:
+    build:
+      context: .
+      dockerfile: e2e/Dockerfile
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      E2E_BASE_URL: http://web:8080
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
+    profiles: ["test"]

@@ -35,6 +35,7 @@ npm run dev
 | `npm run preview` | Serve the production build locally |
 | `npm test` | Unit tests (Vitest, Testing Library) |
 | `npm run test:e2e` | End-to-end tests (Playwright, includes axe accessibility checks) |
+| `npm run test:e2e:docker` | Same e2e suite, run in Docker against the `web` service, no local Playwright install needed |
 
 ## Build output
 
