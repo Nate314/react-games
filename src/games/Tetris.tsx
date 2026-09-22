@@ -67,7 +67,7 @@ class Board extends React.Component {
 
 // keys that trigger continuous movement while held, driven by a fixed-interval timer
 const moveKeys = ['a', 'A', 'ArrowLeft', 'd', 'D', 'ArrowRight', 's', 'S', 'ArrowDown'];
-const moveRepeatIntervalMs = 90;
+const moveRepeatIntervalMs = 125;
 
 export default class Tetris extends React.Component<GameProps> {
 
