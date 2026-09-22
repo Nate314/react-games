@@ -61,7 +61,18 @@ test('floatystars: loads clean and the stars move', async ({ page }) => {
 });
 
 test('flappyfinch: loads clean, flaps, pauses and resets', async ({ page }) => {
-    const errors = await open(page, 'flappyfinch');
+    // page.clock.install() alone does not freeze time: real timers (including FlappyFinch's
+    // animation setInterval) keep firing at real wall-clock speed until the clock is explicitly
+    // paused. Without this, the bird keeps falling in real time on top of the runFor() jumps
+    // below, so under CPU contention it can hit the ground (gameover) before the flap assertion
+    // even runs, permanently freezing its position and timing out the poll. Pausing right away,
+    // before navigation, makes the whole test deterministic and driven only by the explicit
+    // runFor() calls below (this app is a plain SPA render with no setTimeout-driven bootstrapping,
+    // so pausing before goto does not get the page stuck the way it can for pages that do).
+    await page.clock.install({ time: 0 });
+    await page.clock.pauseAt(0);
+    const errors = trackErrors(page);
+    await page.goto('/flappyfinch');
     await expect(hud(page)).toContainText(/Score\s*0/);
     const bird = page.locator('.bird');
     await page.clock.runFor(500);
