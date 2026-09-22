@@ -1,6 +1,13 @@
 import React from 'react';
 import './GameOfLife.css';
 import { Utility } from '../Utility';
+import { GameHud } from '../components/GameHud';
+import { BoardColumn } from '../components/BoardColumn';
+import { fitSquareSize } from './boardSize';
+import type { GameProps } from '../stage';
+import {
+    createSquares, nextGeneration, randomizeSquares, setAllSquares, toggleSquare, type Square
+} from './GameOfLife.logic';
 
 // calculate the size of the squares so that the board fills most of the screen
 //  and the max length is the measurement of the longer edge
@@ -9,9 +16,9 @@ const boardWidth = Math.floor(window.innerWidth > window.innerHeight ? maxLength
     : (window.innerWidth / window.innerHeight) * maxLength);
 const boardHeight = Math.floor(window.innerHeight > window.innerWidth ? maxLength
     : (window.innerHeight / window.innerWidth) * maxLength);
-let squareSize = 0;
 
 class BoardProps {
+    squareSize = 0;
     squares: Square[] = [];
     clicked: any;
 }
@@ -39,10 +46,7 @@ class Board extends React.Component {
                 return color ? color : this.boardColor;
             })
         );
-        // calculating square size
-        const maxWidth = Math.floor((window.innerWidth - 100) / boardWidth);
-        const maxHeight = Math.floor((window.innerHeight - 100) / boardHeight);
-        squareSize = Math.min(maxWidth, maxHeight);
+        const squareSize = this.props.squareSize;
         // return rendered board
         return (
             <div>
@@ -67,19 +71,6 @@ class Board extends React.Component {
     }
 }
 
-class Square {
-    x: number;
-    y: number;
-    alive: boolean;
-    neighbors: number;
-    constructor(x: number, y: number, alive: boolean, neighbors: number) {
-        this.x = x;
-        this.y = y;
-        this.alive = alive;
-        this.neighbors = neighbors;
-    }
-}
-
 class GameState {
     paused: boolean = false;
     gametick: boolean = false;
@@ -87,7 +78,7 @@ class GameState {
     gameTickInterval: number = 250;
 }
 
-export default class GameOfLife extends React.Component {
+export default class GameOfLife extends React.Component<GameProps> {
 
     gameTickDelta: number = 0;
     snakeLengthDelta: number = 3;
@@ -95,54 +86,19 @@ export default class GameOfLife extends React.Component {
     interval: any;
     state: GameState;
 
-    constructor(props: any) {
+    constructor(props: GameProps) {
         super(props);
         Utility.setTitle('Game of Life');
         const tempState = new GameState();
-        tempState.squares = Utility.array(boardWidth).map((v, x) =>
-            Utility.array(boardHeight).map((v, y) => new Square(x, y, false, 0))
-        ).flat();
+        tempState.squares = randomizeSquares(createSquares(boardWidth, boardHeight), Math.random);
         this.state = tempState;
-        this.setState(tempState);
-        this.keyDown('r');
         this.interval = setInterval(() => this.gameTick(), this.state.gameTickInterval);
     }
 
     gameTick() {
         this.setState((state: GameState) => {
             if (!state.paused || state.gametick) {
-                console.log('tick');
-                // count neighbors of a square
-                const countNeighbors = (livingSquare: Square, livingSquares: Square[]) => {
-                    let count = 0;
-                    [-1, 0, 1].forEach(xIndex => {
-                        [-1, 0, 1].forEach(yIndex => {
-                            if ((xIndex !== 0 || yIndex !== 0)
-                                && livingSquares.filter(square =>
-                                    square.x === livingSquare.x + xIndex
-                                    && square.y === livingSquare.y + yIndex).length > 0
-                                ) count++;
-                        });
-                    });
-                    return count;
-                }
-                // count the neighbors of all squares
-                const livingSquares = state.squares.filter(square => square.alive);
-                state.squares = state.squares.map(square => { square.neighbors = 0; return square; });
-                state.squares.forEach(square => {
-                    square.neighbors = countNeighbors(square, livingSquares);
-                });
-                // apply the rules from wikipedia https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
-                state.squares.map(square => {
-                    // 1. Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-                    // 2. Any live cell with two or three live neighbours lives on to the next generation.
-                    // 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
-                    // 4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-                    square.alive = square.alive
-                        ? !(square.neighbors < 2 || square.neighbors > 3)
-                        : square.neighbors === 3;
-                    return square;
-                });
+                state.squares = nextGeneration(state.squares);
                 state.gametick = false;
             }
             return state;
@@ -153,23 +109,17 @@ export default class GameOfLife extends React.Component {
         const k = e && e.key ? e.key : e;
         switch (k) {
             case 'Escape':
-                this.state.paused = !this.state.paused;
+                this.setState((state: GameState) => ({ paused: !state.paused }));
                 break;
             case 'r':
             case 'R':
-                this.state.squares.map(square => {
-                    square.alive = Math.random() < 0.5;
-                    return square;
-                });
+                this.setState((state: GameState) => ({ squares: randomizeSquares(state.squares, Math.random) }));
                 break;
             case 'c':
             case 'C':
             case 'a':
             case 'A':
-                this.state.squares.map(square => {
-                    square.alive = k === 'a' || k === 'A';
-                    return square;
-                });
+                this.setState((state: GameState) => ({ squares: setAllSquares(state.squares, k === 'a' || k === 'A') }));
                 break;
             case ' ':
             case 'Space':
@@ -185,39 +135,32 @@ export default class GameOfLife extends React.Component {
 
     clicked(rowindex: number, columnindex: number) {
         this.setState((state: GameState) => {
-            const clickedSquare = state.squares.find(square => square.y === rowindex && square.x === columnindex);
-            if (clickedSquare) clickedSquare.alive = !clickedSquare.alive;
+            state.squares = toggleSquare(state.squares, rowindex, columnindex);
             return state;
         });
     }
 
     render() {
+        const squareSize = fitSquareSize(boardWidth, boardHeight, this.props.stage);
         // show board and scoreboard on the screen
         return (
-            <div>
+            <BoardColumn boardWidth={boardWidth * squareSize}>
                 <Board
+                    squareSize={squareSize}
                     squares={this.state.squares}
                     clicked={(rowindex: number, columnindex: number) => this.clicked(rowindex, columnindex)}/>
-                <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
-                {
-                    [
-                        {'key': 'Escape', 'action': 'Play/Pause'},
-                        {'key': 'r', 'action': 'Random'},
-                        {'key': 'c', 'action': 'Clear All'},
-                        {'key': 'a', 'action': 'Fill All'},
-                        {'key': 'Space', 'action': 'next generation'}
-                    ].map((instruction, i) =>
-                        <span style={{cursor:'pointer'}} onClick={() => this.keyDown(instruction.key)}>
-                            ({instruction.key}) {instruction.action} {i < 4 ? '| ' : ''}
-                        </span>
-                    )
-                }
-                </div>
-                <div className="gameoflifesquare" style={{width: `${boardWidth * squareSize}px`}}>
-                    Learn more on&nbsp;
-                    <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">wikipedia</a>
-                </div>
-            </div>
+                <GameHud
+                    status={this.state.paused ? { text: 'Paused', tone: 'info' } : null}
+                    controls={[
+                        { keys: 'Esc', action: 'Play / Pause', onSelect: () => this.keyDown('Escape') },
+                        { keys: 'R', action: 'Random', onSelect: () => this.keyDown('r') },
+                        { keys: 'C', action: 'Clear all', onSelect: () => this.keyDown('c') },
+                        { keys: 'A', action: 'Fill all', onSelect: () => this.keyDown('a') },
+                        { keys: 'Space', action: 'Next generation', onSelect: () => this.keyDown('Space') }
+                    ]}
+                    footer={<>Learn more on <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Wikipedia</a></>}
+                />
+            </BoardColumn>
         );
     }
 }

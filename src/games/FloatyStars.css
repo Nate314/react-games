@@ -3,8 +3,8 @@
     background-color: skyblue;
     left: -10px;
     top: 0;
-    height: 100vh;
-    width: calc(100vw + 10px);
+    height: 100%;
+    width: calc(100% + 10px);
     overflow-x: hidden;
     overflow-y: hidden;
 }

@@ -1,0 +1,94 @@
+/* Scoped: game boards size their bordered squares as content-box, so they must stay out of this. */
+.page, .page * { box-sizing: border-box; }
+
+/* Page chrome (menu, 404, page background, game HUD) is themed; boards and sprites keep their own colors. */
+body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
+.app-shell, .app-header, .app-header *, .restore-button { box-sizing: border-box; } /* chrome only: game internals stay content-box */
+.stage { flex: 1; min-height: 0; overflow: auto; position: relative; }
+.stage-host { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.page { background: var(--bg); color: var(--text); }
+
+.app-header {
+    flex: none;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+.app-header__title { margin: 0; font-size: 1.25rem; text-align: center; }
+.app-header__side { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.app-header__side--end { justify-content: flex-end; }
+.app-header__back { font-weight: 600; }
+@media (max-width: 600px) { .app-header__brand { display: none; } }
+
+.theme-toggle, .icon-button, .restore-button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.theme-toggle:hover, .icon-button:hover, .restore-button:hover { border-color: var(--accent); }
+.restore-button { position: fixed; top: 8px; right: 8px; z-index: 10; opacity: 0.5; }
+.restore-button:hover, .restore-button:focus-visible { opacity: 1; }
+.page__content { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+.panel p { margin: 0 0 8px; line-height: 1.5; }
+.panel p:last-child { margin-bottom: 0; }
+
+a { color: var(--accent); }
+
+.game-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+.game-card__image { height: 150px; background-size: cover; background-position: center; }
+.game-card__body { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 16px; }
+.game-card__body h2 { margin: 0; font-size: 1.25rem; }
+.game-card__body p { margin: 0; color: var(--muted); flex: 1; }
+
+.button {
+    align-self: flex-end;
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+    text-decoration: none;
+}
+.button:hover { filter: brightness(1.1); }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }

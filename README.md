@@ -1,44 +1,46 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# react-games
 
-## Available Scripts
+A small static site of five browser games built with React 19, TypeScript and Vite: Flappy Finch, Floaty Stars, Game of Life, Snake and Tetris. It is served with GitHub Pages from the `docs/` folder.
 
-In the project directory, you can run:
+Every page has a header with the page title, a light and dark toggle (it follows your system setting until you use it, and the choice is saved only after that), and a back link: to the game menu from a game or the 404 page, and to nathangawith.com from the menu. Game pages also have a maximize button that hides the header and gives the game the full window; games resize live without restarting, and the small button at the top right brings the header back. Boards and sprites keep their own colors.
 
-### `npm start`
+## Quick start
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+With Docker (no local Node install needed):
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+```shell
+docker compose up
+```
 
-### `npm test`
+Or use the launcher, which picks a free port and writes `.env`:
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+./run.sh          # macOS, Linux, Git Bash
+.\run.ps1         # Windows PowerShell
+```
 
-### `npm run build`
+Any arguments are passed on to `docker compose`, for example `./run.sh down`.
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Development
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+```shell
+npm ci
+npm run dev
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Vite dev server with hot reload |
+| `npm run build` | Type-check with `tsc`, then build to `docs/` |
+| `npm run preview` | Serve the production build locally |
+| `npm test` | Unit tests (Vitest, Testing Library) |
+| `npm run test:e2e` | End-to-end tests (Playwright, includes axe accessibility checks) |
+| `npm run test:e2e:docker` | Same e2e suite, run in Docker against the `web` service, no local Playwright install needed |
 
-### `npm run eject`
+## Build output
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+`npm run build` writes to `docs/` (emptying it first), which GitHub Pages serves. The build also copies `index.html` to `404.html` so deep links load the single page app. Commit the rebuilt `docs/` when you change the app. See `hosting-options.md` for alternatives.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Dependencies
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Dependabot checks npm, Docker and GitHub Actions weekly. `npm audit` currently reports 0 vulnerabilities.

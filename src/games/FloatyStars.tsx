@@ -1,10 +1,9 @@
 import React from 'react';
 import './FloatyStars.css';
+import type { GameProps, StageSize } from '../stage';
 import { Utility } from '../Utility';
+import { createStars, moveStars, rescaleStars, starSize, visibleStars } from './FloatyStars.logic';
 
-const numberOfStars = 100;
-const starSize = 10;
-const maxSpeed = 1;
 const frameInterval = 10;
 
 class FloatyStarsState {
@@ -12,58 +11,47 @@ class FloatyStarsState {
     starVelocities: number[][] = [];
 }
 
-export default class FloatyStars extends React.Component {
+export default class FloatyStars extends React.Component<GameProps> {
 
     state: FloatyStarsState;
-    props: any;
+    lastStage: StageSize;
+    timer: ReturnType<typeof setInterval>;
 
-    constructor(props: any) {
+    constructor(props: GameProps) {
         super(props);
         Utility.setTitle('FloatyStars');
-        this.props = props;
+        this.lastStage = props.stage;
         this.state = new FloatyStarsState();
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        Utility.array(numberOfStars).forEach(() => {
-            this.state.starLocations.push([Math.random() * width, Math.random() * height]);
-            this.state.starVelocities.push([Math.random() * maxSpeed, Math.random() * maxSpeed]);
-        });
-        this.setState(this.state);
-        setInterval(() => {
+        const stars = createStars(props.stage.width, props.stage.height, Math.random);
+        this.state.starLocations = stars.locations;
+        this.state.starVelocities = stars.velocities;
+        this.timer = setInterval(() => {
             this.animate();
         }, frameInterval);
     }
 
+    componentWillUnmount() {
+        clearInterval(this.timer);
+    }
+
     animate() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        const { width, height } = this.props.stage;
         this.setState((state: FloatyStarsState) => {
-            let i = 0;
-            state.starLocations.forEach(starLocation => {
-                starLocation[0] -= state.starVelocities[i][0];
-                starLocation[1] += state.starVelocities[i][1];
-                if (!((starLocation[0] < width + starSize && starLocation[0] > -2 * starSize))) {
-                    starLocation[0] = width + starSize;
-                }
-                if (!((starLocation[1] < height + starSize && starLocation[1] > -2 * starSize))) {
-                    starLocation[1] = -starSize;
-                }
-                i++;
-            });
+            state.starLocations = rescaleStars(state.starLocations, this.lastStage, this.props.stage);
+            this.lastStage = this.props.stage;
+            state.starLocations = moveStars(state.starLocations, state.starVelocities, width, height);
             return state;
         });
     }
 
     render() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        const { width, height } = this.props.stage;
         return (
             <div className="sky">
                 {
-                    this.state.starLocations
-                    .filter(star => (star[0] < width && star[0] > 0) && (star[1] < height && star[1] > 0))
-                    .map(starLocation =>
-                            <div className="snow"
+                    visibleStars(this.state.starLocations, width, height)
+                    .map((starLocation, i) =>
+                            <div className="snow" key={i}
                                 style={{
                                     top: `${starLocation[1]}px`, left: `${starLocation[0]}px`,
                                     width: `${starSize}px`, height: `${starSize}px`

@@ -19,7 +19,6 @@ class Music extends React.Component {
         this.props = props;
         this.state = new MusicState();
         this.state.audio = new Audio(this.props.url);
-        this.setState(this.state);
     }
   
     // togglePlay = () => {

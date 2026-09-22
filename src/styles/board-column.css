@@ -1,0 +1,3 @@
+/* The column is as wide as the board, but never narrower than a readable HUD (320px, or the stage). */
+.board-column { width: max(var(--board-width), min(320px, 100%)); margin: 0 auto; }
+.board-column > :first-child { width: var(--board-width); margin: 0 auto; }

@@ -1,0 +1,12 @@
+node_modules
+docs
+.git
+.vscode
+.idea
+*.md
+plans
+specs
+coverage
+playwright-report
+test-results
+.env
