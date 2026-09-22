@@ -9,8 +9,9 @@ import {
     nomNomSize, colliding, createPipes, incrementScore, flap, rescale, step
 } from './FlappyFinch.logic';
 
-const mp3DingUrl = 'https://freesound.org/data/previews/341/341695_5858296-lq.mp3';
-const mp3FlapUrl = 'https://freesound.org/data/previews/244/244980_3008343-lq.mp3';
+// Self-hosted (originally from freesound.org) so the game doesn't depend on a third-party CDN.
+const mp3DingUrl = '/assets/flappyfinch/ding.mp3';
+const mp3FlapUrl = '/assets/flappyfinch/flap.mp3';
 const highScoreKey = 'nate314.flappyfinch.highScore';
 
 class NomNomProps {
