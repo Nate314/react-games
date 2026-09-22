@@ -29,6 +29,26 @@ test('snake: loads clean, accepts keys, pauses and resets', async ({ page }) => 
     expect(errors).toEqual([]);
 });
 
+test('snake: HUD Reset and Pause buttons work like the keyboard', async ({ page }) => {
+    await open(page, 'snake');
+    const badge = hud(page).getByRole('status');
+    await expect(badge).toHaveCount(0);
+    await hud(page).getByRole('button', { name: /Pause/ }).click(); // the HUD control, not the key
+    await expect(badge).toHaveText('Paused');
+    const paused = await colors(page, '.snakesquare');
+    await page.clock.runFor(1000);
+    expect(await colors(page, '.snakesquare')).toBe(paused); // movement stops while paused
+    await hud(page).getByRole('button', { name: /Pause/ }).click();
+    await expect(badge).toHaveCount(0);
+    await page.keyboard.press('ArrowDown');
+    await page.clock.runFor(1500);
+    const moved = await colors(page, '.snakesquare');
+    expect(moved).not.toBe(paused);
+    await hud(page).getByRole('button', { name: /Reset/ }).click(); // the HUD control, not the key
+    await expect(hud(page)).toContainText(/Score\s*0/);
+    expect(await colors(page, '.snakesquare')).not.toBe(moved); // board is back to a fresh start
+});
+
 test('floatystars: loads clean and the stars move', async ({ page }) => {
     const errors = await open(page, 'floatystars');
     const snapshot = () => page.locator('.snow').evaluateAll(els =>

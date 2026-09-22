@@ -117,7 +117,7 @@ export default class SnakeGame extends React.Component<GameProps> {
 
     keyDown = (e: any) => {
         this.setState((state: SnakeState) => {
-            const k = e.key;
+            const k = e && e.key ? e.key : e;
             let next = { ...state, snakeDirection: nextDirection(this.currentDirection, k) };
             if (k === 'Escape') next.paused = !next.paused;
             if (['r', 'R'].includes(k)) {
@@ -157,9 +157,9 @@ export default class SnakeGame extends React.Component<GameProps> {
                         : null
                     }
                     controls={[
-                        { keys: 'R', action: 'Reset' },
+                        { keys: 'R', action: 'Reset', onSelect: () => this.keyDown('r') },
                         { keys: 'WASD / Arrows', action: 'Move' },
-                        { keys: 'Esc', action: 'Pause' },
+                        { keys: 'Esc', action: 'Pause', onSelect: () => this.keyDown('Escape') },
                     ]}
                 />
             </BoardColumn>
