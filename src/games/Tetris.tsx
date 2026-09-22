@@ -65,9 +65,16 @@ class Board extends React.Component {
     }
 }
 
+// keys that trigger continuous movement while held, driven by a fixed-interval timer
+const moveKeys = ['a', 'A', 'ArrowLeft', 'd', 'D', 'ArrowRight', 's', 'S', 'ArrowDown'];
+const moveRepeatIntervalMs = 90;
+
 export default class Tetris extends React.Component<GameProps> {
 
     state: GameState;
+    heldKeys: Set<string> = new Set();
+    moveRepeatTimer: ReturnType<typeof setInterval> | null = null;
+    gameTickTimer: ReturnType<typeof setInterval>;
 
     constructor(props: GameProps) {
         super(props);
@@ -76,34 +83,67 @@ export default class Tetris extends React.Component<GameProps> {
         tempState.squares = createBoard();
         this.state = tempState;
         this.keyDown('r');
-        setInterval(() => this.gameTick(), this.state.gameTickInterval);
+        this.gameTickTimer = setInterval(() => this.gameTick(), this.state.gameTickInterval);
+        this.moveRepeatTimer = setInterval(() => this.repeatHeldMovement(), moveRepeatIntervalMs);
     }
 
     gameTick() {
         this.setState((state: GameState) => tick(state, Math.random));
     }
 
-    keyDown = (e: any) => {
-        const k = e && e.key ? e.key : e;
+    applyMove = (k: string) => {
         const inc = (arr: string[]) => arr.includes(k);
-        if (inc(['Escape', 'Enter'])) {
-            this.setState((state: GameState) => ({ paused: !state.paused }));
-        } else if (inc(['w', 'W', 'ArrowUp'])) {
-        } else if (inc(['s', 'S', 'ArrowDown'])) {
+        if (inc(['s', 'S', 'ArrowDown'])) {
             this.gameTick();
         } else if (inc(['a', 'A', 'ArrowLeft'])) {
             this.setState((state: GameState) => movePiece(state, -1));
         } else if (inc(['d', 'D', 'ArrowRight'])) {
             this.setState((state: GameState) => movePiece(state, 1));
+        }
+    }
+
+    repeatHeldMovement = () => {
+        this.heldKeys.forEach(k => this.applyMove(k));
+    }
+
+    keyDown = (e: any) => {
+        const k = e && e.key ? e.key : e;
+        const isRepeat = !!(e && e.repeat);
+        const inc = (arr: string[]) => arr.includes(k);
+        if (inc(['Escape', 'Enter'])) {
+            if (isRepeat) return;
+            this.setState((state: GameState) => ({ paused: !state.paused }));
+        } else if (inc(['w', 'W', 'ArrowUp'])) {
+        } else if (inc(moveKeys)) {
+            this.heldKeys.add(k);
+            if (isRepeat) return;
+            this.applyMove(k);
         } else if (inc([',', '<'])) {
+            if (isRepeat) return;
             this.setState((state: GameState) => rotatePiece(state, false));
         } else if (inc(['.', '>'])) {
+            if (isRepeat) return;
             this.setState((state: GameState) => rotatePiece(state, true));
         }
     }
 
+    keyUp = (e: any) => {
+        const k = e && e.key ? e.key : e;
+        this.heldKeys.delete(k);
+    }
+
     componentDidMount() {
         document.addEventListener("keydown", this.keyDown);
+        document.addEventListener("keyup", this.keyUp);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.keyDown);
+        document.removeEventListener("keyup", this.keyUp);
+        if (this.moveRepeatTimer !== null) {
+            clearInterval(this.moveRepeatTimer);
+        }
+        clearInterval(this.gameTickTimer);
     }
 
     render() {
