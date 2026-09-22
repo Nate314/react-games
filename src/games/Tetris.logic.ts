@@ -23,6 +23,7 @@ export class GameState {
     gametick: boolean = false;
     squares: Square[] = [];
     gameTickInterval: number = 250;
+    gameover: boolean = false;
 }
 
 export const createBoard = (): Square[] =>
@@ -78,6 +79,16 @@ export const pieceWillCollide = (state: GameState): boolean => {
     return result;
 };
 
+// true if any square is out of bounds, or overlaps a locked blob on the board
+export const hasCollision = (state: GameState, pieceSquares: Square[]): boolean =>
+    pieceSquares.some(s => {
+        if (s.x < 0 || s.x >= boardWidth || s.y < 0 || s.y >= boardHeight) {
+            return true;
+        }
+        const found = state.squares.find(sq => positionsEqual(s, sq));
+        return !!found && !!found.blob;
+    });
+
 export const convertPieceToBlob = (state: GameState): GameState => {
     state.squares = state.squares.map(s => {
         const found = state.currentPiece.find(sq => positionsEqual(s, sq));
@@ -120,7 +131,7 @@ export const removeFullRows = (state: GameState, fullRowIndecies: number[]): Gam
 
 // one gravity step: move the piece down, or lock it, clear rows, and spawn a new piece
 export const tick = (state: GameState, rng: () => number): GameState => {
-    if (!state.paused || state.gametick) {
+    if (!state.gameover && (!state.paused || state.gametick)) {
         let addNewPiece = true;
         state = repaint(state);
         if (state.currentPiece && state.currentPiece.length !== 0) {
@@ -136,25 +147,24 @@ export const tick = (state: GameState, rng: () => number): GameState => {
             }
         }
         if (addNewPiece) {
-            state.currentPiece = getRandomPiece(rng)
+            const spawned = getRandomPiece(rng)
                 .map(s => new Square(s.x + 4, s.y, s.piece, s.blob));
+            if (hasCollision(state, spawned)) {
+                state.gameover = true;
+                state.currentPiece = [];
+            } else {
+                state.currentPiece = spawned;
+            }
         }
     }
     return state;
 };
 
 export const movePiece = (state: GameState, direction: number): GameState => {
-    if (!state.paused || state.gametick) {
-        let valid = true;
-        state.currentPiece.forEach(s => {
-            const pendingPosition = s.x + direction;
-            const v = pendingPosition >= 0 && pendingPosition < boardWidth;
-            valid = v && valid;
-        });
-        if (valid) {
-            state.currentPiece.forEach(s => {
-                s.x += direction;
-            });
+    if (!state.gameover && (!state.paused || state.gametick)) {
+        const moved = state.currentPiece.map(s => new Square(s.x + direction, s.y, s.piece, s.blob));
+        if (!hasCollision(state, moved)) {
+            state.currentPiece = moved;
         }
     }
     return repaint(state);
@@ -180,7 +190,7 @@ const counterClockwiseMatrix = [
 ];
 
 export const rotatePiece = (state: GameState, clockwise: boolean): GameState => {
-    if (!state.paused || state.gametick) {
+    if (!state.gameover && (!state.paused || state.gametick)) {
         let minX = Math.min(...state.currentPiece.map(s => s.x));
         let minY = Math.min(...state.currentPiece.map(s => s.y));
         const moveToOrigin = (squares: Square[], to: boolean): Square[] =>
@@ -199,7 +209,10 @@ export const rotatePiece = (state: GameState, clockwise: boolean): GameState => 
         });
         minX -= Math.min(...rotated.map(s => s.x));
         minY -= Math.min(...rotated.map(s => s.y));
-        state.currentPiece = moveToOrigin(rotated, false);
+        const newPiece = moveToOrigin(rotated, false);
+        if (!hasCollision(state, newPiece)) {
+            state.currentPiece = newPiece;
+        }
     }
     return repaint(state);
 };

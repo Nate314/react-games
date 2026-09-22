@@ -108,6 +108,21 @@ test('tetris: loads clean, pieces fall and move with the keyboard', async ({ pag
     expect(errors).toEqual([]);
 });
 
+test('tetris: HUD Reset control clears the board and resets the score', async ({ page }) => {
+    await open(page, 'tetris');
+    const sel = '.gameoflifesquare[style*="background-color"]';
+    const start = await colors(page, sel);
+    await page.clock.runFor(1000); // let a piece spawn and fall
+    await page.keyboard.press('ArrowLeft');
+    await page.clock.runFor(2000);
+    const moved = await colors(page, sel);
+    expect(moved).not.toBe(start); // board now has locked/falling pieces on it
+    await hud(page).getByRole('button', { name: /Reset/ }).click(); // the HUD control, not the key
+    await expect(hud(page)).toContainText(/Score\s*0/);
+    expect(await colors(page, sel)).toBe(start); // board is back to a fresh, empty start
+    await expect(hud(page).getByRole('status')).toHaveCount(0); // no Game Over / Paused badge
+});
+
 for (const id of ['gameoflife', 'tetris']) {
     test(`${id}: pausing shows a Paused badge in the HUD`, async ({ page }) => {
         await page.clock.install();

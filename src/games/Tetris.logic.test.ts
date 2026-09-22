@@ -124,4 +124,45 @@ describe('Tetris logic', () => {
         expect(cell(s, 2, 12).blob).toBe('green');
         expect(s.squares.filter(q => q.blob).length).toBe(1);
     });
+
+    it('movePiece rejects a move into a cell occupied by a locked blob', () => {
+        const s = withPiece(newState(), [[1, 0]]);
+        cell(s, 0, 0).blob = 'blue';
+        movePiece(s, -1);
+        expect(coords(s.currentPiece)).toEqual([[1, 0]]);
+    });
+
+    it('rotatePiece rejects a rotation that would overlap a locked blob', () => {
+        const s = withPiece(newState(), [[3, 0], [4, 0], [5, 0], [6, 0]]);
+        cell(s, 3, 2).blob = 'blue';
+        rotatePiece(s, true);
+        expect(coords(s.currentPiece)).toEqual([[3, 0], [4, 0], [5, 0], [6, 0]].sort());
+    });
+
+    it('rotatePiece rejects a rotation that would push the piece out of bounds', () => {
+        const s = withPiece(newState(), [[9, 0], [9, 1], [9, 2], [9, 3]]);
+        rotatePiece(s, true);
+        expect(coords(s.currentPiece)).toEqual([[9, 0], [9, 1], [9, 2], [9, 3]].sort());
+    });
+
+    it('sets gameover when a new piece cannot spawn without overlapping the stack', () => {
+        const s = newState();
+        cell(s, 4, 0).blob = 'blue';
+        tick(s, () => 0);
+        expect(s.gameover).toBe(true);
+        expect(s.currentPiece).toEqual([]);
+    });
+
+    it('once gameover, tick, movePiece, and rotatePiece are no-ops', () => {
+        const s = withPiece(newState(), [[4, 0], [5, 0]]);
+        s.gameover = true;
+        movePiece(s, 1);
+        expect(coords(s.currentPiece)).toEqual([[4, 0], [5, 0]]);
+        rotatePiece(s, true);
+        expect(coords(s.currentPiece)).toEqual([[4, 0], [5, 0]]);
+        const beforeScore = s.score;
+        tick(s, () => 0);
+        expect(s.score).toBe(beforeScore);
+        expect(coords(s.currentPiece)).toEqual([[4, 0], [5, 0]]);
+    });
 });

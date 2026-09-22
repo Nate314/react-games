@@ -75,6 +75,7 @@ export default class Tetris extends React.Component<GameProps> {
     heldKeys: Set<string> = new Set();
     moveRepeatTimer: ReturnType<typeof setInterval> | null = null;
     gameTickTimer: ReturnType<typeof setInterval>;
+    mounted: boolean = false;
 
     constructor(props: GameProps) {
         super(props);
@@ -82,8 +83,8 @@ export default class Tetris extends React.Component<GameProps> {
         const tempState = new GameState();
         tempState.squares = createBoard();
         this.state = tempState;
-        this.keyDown('r');
         this.gameTickTimer = setInterval(() => this.gameTick(), this.state.gameTickInterval);
+        this.keyDown('r');
         this.moveRepeatTimer = setInterval(() => this.repeatHeldMovement(), moveRepeatIntervalMs);
     }
 
@@ -108,7 +109,11 @@ export default class Tetris extends React.Component<GameProps> {
 
     keyDown = (e: any) => {
         const k = e && e.key ? e.key : e;
-        const isRepeat = !!(e && e.repeat);
+        // e is a real KeyboardEvent for physical key presses, or a plain string when a HUD
+        // button or a programmatic call (e.g. the constructor's reset) invokes this directly.
+        // A plain string already has its own `.repeat` method (String.prototype.repeat), so
+        // only treat `.repeat` as the key-repeat flag when e is an actual event object.
+        const isRepeat = typeof e === 'object' && e !== null && !!e.repeat;
         const inc = (arr: string[]) => arr.includes(k);
         if (inc(['Escape', 'Enter'])) {
             if (isRepeat) return;
@@ -124,6 +129,18 @@ export default class Tetris extends React.Component<GameProps> {
         } else if (inc(['.', '>'])) {
             if (isRepeat) return;
             this.setState((state: GameState) => rotatePiece(state, true));
+        } else if (inc(['r', 'R'])) {
+            if (isRepeat) return;
+            this.heldKeys.clear();
+            const freshState = new GameState();
+            freshState.squares = createBoard();
+            clearInterval(this.gameTickTimer);
+            this.gameTickTimer = setInterval(() => this.gameTick(), freshState.gameTickInterval);
+            if (this.mounted) {
+                this.setState(freshState);
+            } else {
+                this.state = freshState;
+            }
         }
     }
 
@@ -133,6 +150,7 @@ export default class Tetris extends React.Component<GameProps> {
     }
 
     componentDidMount() {
+        this.mounted = true;
         document.addEventListener("keydown", this.keyDown);
         document.addEventListener("keyup", this.keyUp);
     }
@@ -153,9 +171,14 @@ export default class Tetris extends React.Component<GameProps> {
             <BoardColumn boardWidth={boardWidth * squareSize}>
                 <Board squares={this.state.squares} squareSize={squareSize} />
                 <GameHud
-                    status={this.state.paused ? { text: 'Paused', tone: 'info' } : null}
+                    status={
+                        this.state.gameover ? { text: 'Game Over', tone: 'danger' }
+                        : this.state.paused ? { text: 'Paused', tone: 'info' }
+                        : null
+                    }
                     stats={[{ label: 'Score', value: this.state.score }]}
                     controls={[
+                        { keys: 'R', action: 'Reset', onSelect: () => this.keyDown('r') },
                         { keys: 'Esc', action: 'Play / Pause', onSelect: () => this.keyDown('Escape') },
                         { keys: 'WASD / Arrows', action: 'Move' },
                         { keys: ',', action: 'Rotate left', onSelect: () => this.keyDown(',') },
