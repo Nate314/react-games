@@ -43,4 +43,4 @@ npm run dev
 
 ## Dependencies
 
-Dependabot checks npm, Docker and GitHub Actions weekly. `npm audit` currently reports 0 vulnerabilities.
+Dependabot alerts and security updates are enabled, so a pull request is opened when a dependency has a published vulnerability. `npm audit` currently reports 0 vulnerabilities.
