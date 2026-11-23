@@ -12,7 +12,7 @@ With Docker (no local Node install needed):
 docker compose up
 ```
 
-Or use the launcher, which picks a free port and writes `.env`:
+Or use the launcher ([compose-launcher](https://github.com/Nate314/compose-launcher), a git submodule fetched on first run), which picks a free port, writes `.env` and prints the URL. Ports and URLs are set in `run.conf`:
 
 ```
 ./run.sh          # macOS, Linux, Git Bash
